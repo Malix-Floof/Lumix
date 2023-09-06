@@ -9,9 +9,9 @@ filters = ['Сепия', 'Радуга', 'Стекло', 'Пиксели', 'Хо
 animal_list = ['Лиса', 'Кошка', 'Собака', 'Птица', 'Коала', 'Кенгуру', 'Енот']
 
 async def translator(word, lang_server):
-        translator = Translator()
-        result = translator.translate(word, dest = lang_server)
-        return result.text
+    translator = Translator()
+    result = translator.translate(word, dest = lang_server)
+    return result.text
 
 class ApiRequester(commands.Cog):
     def __init__(self, bot):
