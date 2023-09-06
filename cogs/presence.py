@@ -1,4 +1,4 @@
-import disnake
+from disnake import Activity, ActivityType
 from disnake.ext import commands, tasks
 
 
@@ -12,7 +12,7 @@ class Presence(commands.Cog):
 
     @tasks.loop(minutes=5)
     async def update_stats(self):
-        await self.bot.change_presence(activity=disnake.Activity(name=f'за {len(self.bot.guilds)} серверами', type=disnake.ActivityType.watching))
+        await self.bot.change_presence(activity=Activity(name=f'за {len(self.bot.guilds)} серверами', type=ActivityType.watching))
 
 
 def setup(bot):
