@@ -35,9 +35,29 @@ class Music(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         lang_server = db.get(f"lang_{member.guild.id}") or "ru"
+        """stats = {
+            'ru': {
+                'destroy': 'Я была отключена от голосового канала',
+                'move': 'Я была перемещена в другой канал',
+                'empty': 'В голосовом канале не осталось участников'
+            },
+            'en': {
+                'destroy': 'I was disconnected from the voice channel',
+                'move': 'I have been moved to another channel', 
+                'empty': 'There are no members left in the voice channel'
+            },
+            'uk': {
+                'destroy': 'Я була відключена від голосового каналу',
+                'move': 'Я була переміщена в інший канал', 
+                'empty': 'У голосовому каналі не залишилося учасників'
+            }
+        }"""
+
         player = self.bot.node.get_player(member.guild)
+
         if before.channel == after.channel or not player:
             return
+
         if before.channel is not None and after.channel is not None:
             if lang_server == 'ru':
                 return await player.destroy("Я была перемещена в другой канал")
@@ -49,13 +69,11 @@ class Music(commands.Cog):
         if member.id == self.bot.user.id and after.channel is None:
             if lang_server == 'ru':
                 await player.destroy("Я была отключена от голосового канала")
-                return
             if lang_server == 'en':
                 await player.destroy("I was disconnected from the voice channel")
-                return
             if lang_server == 'uk':
                 await player.destroy("Я була відключена від голосового каналу")
-                return
+
         if not any(not member.bot for member in player.channel.members):
             if lang_server == 'ru':
                 await player.destroy("В голосовом канале не осталось участников")
