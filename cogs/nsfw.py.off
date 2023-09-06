@@ -1,0 +1,16 @@
+import disnake
+from disnake.ext import commands
+import lumix.print
+
+class Nsfw(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await lumix.print.log(f"Запущен nsfw.py")
+
+    # @commands.shash_command(description="🔞 Nsfw | ")
+
+def setup(bot):
+    bot.add_cog(Nsfw(bot))
