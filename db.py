@@ -22,7 +22,7 @@ class SQLITE:
         if query is None or value is None:
             raise TypeError('Параметры в add должны быть настроеными')
 
-        if isinstance(value, int) == False:
+        if isinstance(value, int) is False:
             raise TypeError('Значение для добавления должно быть числом')
 
         self.db.execute("SELECT value FROM json WHERE id = ?", [query])
@@ -48,12 +48,12 @@ class SQLITE:
 
     def set(self, query: str = None, value = None) -> Cursor:
         """Установить значение в БД"""
-        if query == None or value == None:
+        if query == None or value is None:
             raise TypeError('Параметры для set должны быть настроеными')
 
         self.db.execute("SELECT value FROM json WHERE id = ?", [query])
-        if self.db.fetchone() == None:
-            if isinstance(value, int) == True:
+        if self.db.fetchone() is None:
+            if isinstance(value, int) is True:
                 self.db.execute("INSERT INTO json VALUES (?, ?)", [query, value])
                 self.sqlite.commit()
             else:
@@ -61,7 +61,7 @@ class SQLITE:
                 self.sqlite.commit()
             return True
         else:
-            if isinstance(value, int) == True:
+            if isinstance(value, int) is True:
                 self.db.execute("UPDATE json SET value = ? WHERE id = ?", [value, query])
                 self.sqlite.commit()
             else:
@@ -76,7 +76,7 @@ class SQLITE:
             raise TypeError('Параметры get должны быть настроеными')
 
         self.db.execute("SELECT value FROM json WHERE id = ?", [query])
-        if self.db.fetchone() == None:
+        if self.db.fetchone() is None:
             return None
         else:
             self.db.execute("SELECT value FROM json WHERE id = ?", [query])
@@ -84,10 +84,10 @@ class SQLITE:
 
     def subtract(self, query: str = None, value = None) -> Cursor:
         """Убавить значение в БД"""
-        if query == None or value == None:
+        if query == None or value is None:
             raise TypeError('Параметры для subtract должны быть настроеными')
 
-        if isinstance(value, int) == False:
+        if isinstance(value, int) is False:
             raise TypeError('Значение для убавления должно быть числом')
 
         self.db.execute("SELECT value FROM json WHERE id = ?", [query])
@@ -121,7 +121,7 @@ class SQLITE:
             raise TypeError('Параметры для has должны быть настроеными')
         
         self.db.execute("SELECT value FROM json WHERE id = ?", [query])
-        if self.db.fetchone() == None:
+        if self.db.fetchone() is None:
             return False
         else:
             return True
@@ -130,7 +130,7 @@ class SQLITE:
         """Получить все данные из БД в массиве"""
         arr = []
         self.db.execute("SELECT * FROM json")
-        if self.db.execute("SELECT * FROM json") == None:
+        if self.db.execute("SELECT * FROM json") is None:
             return []
 
 
