@@ -1,60 +1,57 @@
 import disnake
 import re
+from random import choice
 from disnake.ext import commands
-from datetime import *
 from db import SQLITE
 
 db = SQLITE("database.db")
 
 
-class Moder(commands.Cog):
+class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.persistent_views_added = False
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print(f'[ ОК ] Запущен moder.py')
+        await db.initialize()
+        print('[ ОК ] Запущен moder.py')
 
     @commands.slash_command(description="🛡️ Модерация | Удаляет сообщения")
     @commands.bot_has_permissions(manage_messages=True)
     @commands.has_permissions(manage_messages=True)
     async def clear(self, inter, amount: commands.Range[int, 1, 100] = commands.Param(
                 name="количество", description="Лимит для удаления сообщений: 100")):
-        lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
+        lang_server = await db.get(f"lang_{inter.guild.id}") or "ru"
         await inter.channel.purge(limit=amount)
         await inter.response.defer()
-        if lang_server == 'ru':
-            await inter.send(embed=disnake.Embed(description=f"Вы очистили `{amount}` сообщений", color=0x2b2d31))
-        if lang_server == 'en':
-            await inter.send(embed=disnake.Embed(description=f"You cleared `{amount}` messages", color=0x2b2d31))
-        if lang_server == 'uk':
-            await inter.send(embed=disnake.Embed(description=f"Ви очистили `{amount}` повідомлень", color=0x2b2d31))
+        message = {
+            'ru': f'Вы очистили `{amount}` сообщений',
+            'en': f'You cleared `{amount}` messages',
+            'uk': f'Ви очистили `{amount}` повідомлень'  
+        }[lang_server]
+        embed = disnake.Embed(description=message, color=0x2b2d31)
+        await inter.send(embed=embed)
 
     @clear.error
     async def clear_error(self, inter, error):
-        lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
+        lang_server = await db.get(f"lang_{inter.guild.id}") or "ru"
         if isinstance(error, commands.BotMissingPermissions):
-            if lang_server == 'ru':
-                return await inter.send("У бота недостаточно прав для отчистки сообщений", ephemeral=True)
-            if lang_server == 'en':
-                return await inter.send("The bot does not have enough rights to clear messages", ephemeral=True)
-            if lang_server == 'uk':
-                return await inter.send("У бота недостатньо прав для очищення повідомлень", ephemeral=True)
+            message = {
+                'ru': 'У бота недостаточно прав для отчистки сообщений',
+                'en': 'The bot does not have enough rights to clear messages',
+                'uk': 'У бота недостатньо прав для очищення повідомлень'
+            }[lang_server]
+            await inter.send(message, ephemeral=True)
+            return
         if isinstance(error, commands.MissingPermissions):
-            if lang_server == 'ru':
-                return await inter.send("У вас недостаточно прав для отчистки сообщений", ephemeral=True)
-            if lang_server == 'en':
-                return await inter.send("You don't have enough rights to clear messages", ephemeral=True)
-            if lang_server == 'uk':
-                return await inter.send("У вас недостатньо прав для очищення повідомлень", ephemeral=True)
-        if isinstance(error, commands.CommandError):
-            if lang_server == 'ru':
-                return await inter.send(f"Неизвестная ошибка: {error}", ephemeral=True)
-            if lang_server == 'en':
-                return await inter.send(f"Unknown error: {error}", ephemeral=True)
-            if lang_server == 'uk':
-                return await inter.send(f"Невідома помилка: {error}", ephemeral=True)
+            message = {
+                'ru': 'У вас недостаточно прав для отчистки сообщений',
+                'en': "You don't have enough rights to clear messages",
+                'uk': 'У вас недостатньо прав для очищення повідомлень'
+            }[lang_server]
+            await inter.send(message, ephemeral=True)
+            return 
 
     @commands.slash_command(description="🛡️ Модерация | Даёт мут пользователю")
     @commands.bot_has_permissions(moderate_members=True)
@@ -64,28 +61,25 @@ class Moder(commands.Cog):
                    duration: str = commands.Param(name="время", description="1w, 1d, 15h, 30m, 30s"),
                    reason: str = commands.Param("Отсутствует", name="причина", description="Причина мута")):
         durations = duration.split()
-
+        
         joke = ["Ха-ха, ну что у нас тут! Кажется, что-то пошло не по плану... Но подожди-ка, я вижу, этот участник, владелец сервера, просто неприступен! Он как незаглушимый супергерой, готовый отразить все мои попытки! Я чувствую себя просто как бедный злодей, пытающийся поймать моего супергеройского противника! Ха-ха-ха!",
                 "Ой-ой, что-то пошло не по плану! Но стоп-стоп-стоп! У меня есть ощущение, что этот участник, владелец сервера, просто неприступен! Он как незаглушимый супергерой, готовый сразиться со всеми моими попытками! Я чувствую себя просто как злодей из комиксов, пытающийся поймать этого непобедимого героя! Ха-ха-ха!",
                 "О нет, все идет не так... И я понимаю, этот участник, владелец сервера, непробиваемый. Он словно супергерой, готовый отразить все мои попытки. Мои усилия напрасны...",
                 "Ох, ничего не получается! Он просто непокоримый материал, словно незаглушимый супергерой, который насмехается над моими попытками! Я злюсь и бушую от раздражения! Почему он так непробиваем?!"]
 
         if member.id == inter.guild.owner.id:
-            await inter.send(choice(joke))
+            return await inter.send(choice(joke), ephemeral=True)
 
         if member.current_timeout is not None:
-            await inter.send("Участник уже заглушен!", ephemeral=True)
+            return await inter.send("Участник уже заглушен!", ephemeral=True)
 
         if member.top_role > inter.guild.me.top_role:
-            await inter.send(f"**{inter.author.global_name}** чтобы заглушить участника, необходимо установить мою роль выше остальных ролей, так как роль участника имеет более высокий приоритет, чем моя. В противном случае я не смогу заглушить участника", ephemeral=True)
+            return await inter.send(f"**{inter.author.global_name}** чтобы заглушить участника, необходимо установить мою роль выше остальных ролей, так как роль участника имеет более высокий приоритет, чем моя. В противном случае я не смогу заглушить участника", ephemeral=True)
 
-        if member.voice is not None:
-            if member.voice.channel is not None:
-                await member.move_to(None)
 
         for dur in durations:
             if not re.match(r'^\d+[wdhms]$', dur):
-                raise commands.BadArgument('Неверный формат времени. Используйте формат: "1d 2h 3m"')
+                raise commands.BadArgument("Неверный формат времени. Используйте формат 1d, 2h, 3m через запятую или пробел")
 
         total_seconds = 0
         for dur in durations:
@@ -127,31 +121,29 @@ class Moder(commands.Cog):
             embed.add_field(name="Время мута:", value=f"`{time_formatted}`", inline=False)
             embed.add_field(name="Причина:", value=f"`{reason}`", inline=False)
             embed.add_field(name="Модератор:", value=f"{inter.author.mention}", inline=False)
-            embed.set_thumbnail(url=member.avatar.url)
+            embed.set_thumbnail(url=member.display_avatar.url)
         if lang_server == 'en':
             embed = disnake.Embed(title="Timeout", color=0x2F3136)
             embed.add_field(name="User:", value=f"{member.mention}", inline=False)
             embed.add_field(name="Timeout time:", value=f"`{duration}`", inline=False)
             embed.add_field(name="Reason:", value=f"`{reason}`", inline=False)
             embed.add_field(name="Мoderator:", value=f"{inter.author.mention}", inline=False)
-            embed.set_thumbnail(url=member.avatar.url)
+            embed.set_thumbnail(url=member.display_avatar.url)
         if lang_server == 'uk':
             embed = disnake.Embed(title="Мут", color=0x2F3136)
             embed.add_field(name="Користувач:", value=f"{member.mention}", inline=False)
             embed.add_field(name="Час мута:", value=f"`{duration}`", inline=False)
             embed.add_field(name="Причина:", value=f"`{reason}`", inline=False)
             embed.add_field(name="Модератор:", value=f"{inter.author.mention}", inline=False)
-            embed.set_thumbnail(url=member.avatar.url)
+            embed.set_thumbnail(url=member.display_avatar.url)
         await inter.send(embed=embed)
 
     @mute.error
     async def mute_error(self, inter, error):
         if isinstance(error, commands.BotMissingPermissions):
             await inter.send("У бота недостаточно прав для управления пользователями", ephemeral=True)
-        if isinstance(error, commands.BotMissingPermissions):
+        if isinstance(error, commands.MissingPermissions):
             await inter.send("У вас недостаточно прав для управления пользователями", ephemeral=True)
-        if isinstance(error, commands.BadArgument):
-            await inter.send("Неверный формат времени. Используйте формат 1d 2h 3m через пробел", ephemeral=True)
 
     @commands.slash_command(description="🛡️ Модерация | Устанавливает медленный режим для текущего канала")
     @commands.bot_has_permissions(manage_channels=True)
@@ -185,15 +177,15 @@ class Moder(commands.Cog):
         if seconds == 0:
             if lang_server == 'ru':
                 embed = disnake.Embed(title="Медленный режим",
-                                      description=f"Медленный режим был отключён",
+                                      description="Медленный режим был отключён",
                                       color=0x2b2d31)
             elif lang_server == 'en':
                 embed = disnake.Embed(title="Slow mode",
-                                      description=f"Slow mode has been disabled",
+                                      description="Slow mode has been disabled",
                                       color=0x2b2d31)
             elif lang_server == 'uk':
                 embed = disnake.Embed(title="Повільний режим",
-                                      description=f"Повільний режим був вимкнений",
+                                      description="Повільний режим був вимкнений",
                                       color=0x2b2d31)
         else:
             embed = disnake.Embed(title="Медленный режим",
@@ -211,9 +203,20 @@ class Moder(commands.Cog):
     @slowmode.error
     async def slowmode_error(self, inter, error):
         if isinstance(error, commands.BotMissingPermissions):
-            await inter.send("У бота недостаточно прав для установки задержки в чате", ephemeral=True)
-        if isinstance(error, commands.BotMissingPermissions):
-            await inter.send("У вас недостаточно прав для установки задержки в чате", ephemeral=True)
+            lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
+            message = {
+                'ru': 'У бота недостаточно прав для установки задержки в чате',
+                'en': 'The bot does not have enough rights to set a chat delay',
+                'uk': 'У бота недостатньо прав для встановлення затримки в чаті'
+            }[lang_server]
+            await inter.send(message, ephemeral=True)
+        if isinstance(error, commands.MissingPermissions):
+            message = {
+                'ru': 'У вас недостаточно прав для установки задержки в чате',
+                'en': 'You do not have enough rights to set a chat delay',
+                'uk': 'У вас недостатньо прав для встановлення затримки в чаті'
+            }[lang_server]
+            await inter.send(message, ephemeral=True)
 
 
     @commands.slash_command(description="🛡️ Модерация | Снимает мут с пользователя")
@@ -227,19 +230,19 @@ class Moder(commands.Cog):
             embed.add_field(name="Пользователь:", value=f"{member.mention}", inline=False)
             embed.add_field(name="Причина:", value=f"`{reason}`", inline=False)
             embed.add_field(name="Модератор:", value=f"{inter.author.mention}", inline=False)
-            embed.set_thumbnail(url=member.avatar)
+            embed.set_thumbnail(url=member.display_avatar.url)
         if lang_server == 'uk':
             embed = disnake.Embed(title="Зняття Мута", color=0x2F3136)
             embed.add_field(name="Користувач:", value=f"{member.mention}", inline=False)
             embed.add_field(name="Причина:", value=f"`{reason}`", inline=False)
             embed.add_field(name="Модератор:", value=f"{inter.author.mention}", inline=False)
-            embed.set_thumbnail(url=member.avatar)
+            embed.set_thumbnail(url=member.display_avatar.url)
         if lang_server == 'en':
             embed = disnake.Embed(title="Unmute", color=0x2F3136)
             embed.add_field(name="User:", value=f"{member.mention}", inline=False)
             embed.add_field(name="Reason:", value=f"`{reason}`", inline=False)
             embed.add_field(name="Moderator:", value=f"{inter.author.mention}", inline=False)
-            embed.set_thumbnail(url=member.avatar.url)
+            embed.set_thumbnail(url=member.display_avatar.url)
         await inter.send(embed=embed)
 
     @unmute.error
@@ -257,6 +260,7 @@ class Moder(commands.Cog):
             name='пользователь', 
             description="Пользователь для бана"), 
             reason: str = commands.Param("Отсутствует", name="причина", description="Причина бана")):
+        await inter.response.defer()
         lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
         await member.ban(reason=reason)
         if lang_server == 'ru':
@@ -264,19 +268,19 @@ class Moder(commands.Cog):
             embed.add_field(name="Пользователь:", value=f"{member.mention}", inline=False)
             embed.add_field(name="Причина:", value=f"`{reason}`", inline=False)
             embed.add_field(name="Модератор:", value=f"{inter.author.mention}", inline=False)
-            embed.set_thumbnail(url=member.avatar)
+            embed.set_thumbnail(url=member.display_avatar.url)
         if lang_server == 'en':
             embed = disnake.Embed(title="Ban", color=0x2F3136)
             embed.add_field(name="User:", value=f"{member.mention}", inline=False)
             embed.add_field(name="Reason:", value=f"`{reason}`", inline=False)
             embed.add_field(name="Moderator:", value=f"{inter.author.mention}", inline=False)
-            embed.set_thumbnail(url=member.avatar)
+            embed.set_thumbnail(url=member.display_avatar.url)
         if lang_server == 'uk':
             embed = disnake.Embed(title="Бан", color=0x2F3136)
             embed.add_field(name="Користувач:", value=f"{member.mention}", inline=False)
             embed.add_field(name="Причина:", value=f"`{reason}`", inline=False)
             embed.add_field(name="Модератор:", value=f"{inter.author.mention}", inline=False)
-            embed.set_thumbnail(url=member.avatar)
+            embed.set_thumbnail(url=member.display_avatar.url)
         await inter.send(embed=embed)
 
     @ban.error
@@ -310,22 +314,22 @@ class Moder(commands.Cog):
                 embed.add_field(name="Причина:", value=f"`{reason}`", inline=False)
                 embed.add_field(name="Модератор:", value=f"{inter.author.mention}", inline=False)
             await inter.send(embed=embed)
-        except Exception as e:
+        except Exception:
             if lang_server == 'ru':
                 await inter.send(embed=disnake.Embed(
                     title="Произошла ошибка при попытке разблокировать пользователя",
-                    description=f"- Данный пользователь не имеет ограничений\n- Указан не известный пользователь\n- У вас недостаточно прав\n- У меня недостаточно прав", color=0x2b2d31))
+                    description="- Данный пользователь не имеет ограничений\n- Указан не известный пользователь\n- У вас недостаточно прав\n- У меня недостаточно прав", color=0x2b2d31))
             if lang_server == 'en':
                 await inter.send(embed=disnake.Embed(
                     title="An error occurred while trying to unblock the user",
-                    description=f"- This user has no restrictions\n- Unknown user specified\n- You do not have enough rights\n- I do not have enough rights", color=0x2b2d31))
+                    description="- This user has no restrictions\n- Unknown user specified\n- You do not have enough rights\n- I do not have enough rights", color=0x2b2d31))
             if lang_server == 'uk':
                 await inter.send(embed=disnake.Embed(
                     title="Помилка при спробі розблокувати користувача",
-                    description=f"- Даний користувач не має обмежень\n- Вказаний не відомий користувач\n- У вас недостатньо прав\n- У мене недостатньо прав", color=0x2b2d31))
+                    description="- Даний користувач не має обмежень\n- Вказаний не відомий користувач\n- У вас недостатньо прав\n- У мене недостатньо прав", color=0x2b2d31))
 
 
 
 
 def setup(bot):
-    bot.add_cog(Moder(bot))
+    bot.add_cog(Moderation(bot))
