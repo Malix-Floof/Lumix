@@ -13,7 +13,41 @@ class CogUtils(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print(f"utils.py is ready")
+        print("utils.py is ready")
+        await db.initialize()
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        autorole = db.get(f"autorole_{member.guild.id}")
+        if autorole is None:
+            return
+        role = disnake.utils.get(member.guild.roles, id=int(autorole))
+        await member.add_roles(role)
+
+    @commands.slash_command(description="Установить автороли на сервер!")
+    @commands.has_permissions(administrator=True)
+    async def autorole(self, inter, role: disnake.Role):
+        if role.position == 0:
+            return await inter.send('Давайте оставим `@everyone` для объявлений и общих уведомлений, а автороли сделаем более уникальными, ок?', ephemeral=True)
+            
+        if role.is_premium_subscriber():
+            return await inter.send('Эх, роль бустера слишком "взрывная" для авторолей, она настролько крутая, что я не могу её выдать автоматически!', ephemeral=True)
+
+        if role.is_integration():
+            return await inter.send('Ого, роль интеграции в автороли? Ну-ну, следующий шаг - автоматические сообщения от тостера! Лучше оставим интеграции на их месте и не путаем роли с пирожками!', ephemeral=True)
+
+        if role.is_bot_managed():
+            return await inter.send('Роль приложения? Ну, она такая особенная, что даже автороли не могут ее понять! Ловите ошибку 404: Роль приложения не может быть установлена в качестве роли для авторолей', ephemeral=True)
+
+        await db.set(f"autorole_{inter.guild.id}", str(role.id))
+        embed = disnake.Embed(description=f"**Когда кто-то присоединяется к серверу, роль <@&{role.id}> будет автоматически выдана пользователю**", color=0x2b2d31)
+        await inter.send(embed=embed)
+
+    @autorole.error
+    async def autorole_error(self, inter, error):
+        await db.get(f"lang_{inter.guild.id}") or "ru"
+        if isinstance(error, commands.MissingPermissions):
+                await inter.send("У вас должно быть право администратора что бы установить автоматическую выдачу ролей", ephemeral=True)
 
 
     @commands.slash_command(description="🔧 Утилиты | Показать баннер участника")
@@ -49,51 +83,52 @@ class CogUtils(commands.Cog):
         lang_map = {
             'Английский': 'en',
             'Арабский': 'ar',
+            'Белорусский': 'be',
             'Русский': 'ru',
             'Украинский': 'uk'
         }
 
-        if lang in lang_map:
-            tts = gTTS(text=text, lang=lang_map[lang])
-            tts.save(f"./cores/gtts/{lang_map[lang]}-voice.mp3")
-        if lang_server == 'ru':
-            await inter.send("Результат:", file=disnake.File(f"./cores/gtts/{lang_map[lang]}-voice.mp3"))
-        if lang_server == 'en':
-            await inter.send("Result:", file=disnake.File(f"./cores/gtts/{lang_map[lang]}-voice.mp3"))
-        if lang_server == 'uk':
-            await inter.send("Результат:", file=disnake.File(f"./cores/gtts/{lang_map[lang]}-voice.mp3"))
+        tts = gTTS(text=text, lang=lang_map[lang])
+        tts.save(f"./src/audio/gtts/{lang_map[lang]}-voice.mp3")
+        file = disnake.File(f"./src/audio/gtts/{lang_map[lang]}-voice.mp3")
+        message = {
+            'ru': 'Результат:',
+            'en': 'Result:',
+            'uk': 'Результат:'    
+        }[lang_server]
+        await inter.send(message, file=file)
 
     @gtts.error
     async def gtts_error(self, inter):
-        lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
-        if lang_server == 'ru':
-            embed = disnake.Embed(description=f"Простите, данный язык сейчас не доступен!", color=0x2b2d31)
-        if lang_server == 'en':
-            embed = disnake.Embed(description=f"Sorry, this language is currently not available!", color=0x2b2d31)
-        if lang_server == 'uk':
-            embed = disnake.Embed(description=f"Вибачте, ця мова зараз не доступна!", color=0x2b2d31)
-        embed.set_author(name=f"{inter.author.name}", icon_url=f"{inter.author.avatar.url}")
+        lang = db.get(f"lang_{inter.guild.id}") or "ru"
+        message = {
+            'ru': 'Простите, данный язык сейчас не доступен!',
+            'en': 'Sorry, this language is currently not available!',
+            'uk': 'Вибачте, ця мова зараз не доступна!'    
+        }[lang]
+        embed = disnake.Embed(description=message, color=0x2b2d31)
+        embed.set_author(name=inter.author.name, icon_url=inter.user.display_avatar.url)
         await inter.send(embed=embed)
 
 
-    @commands.slash_command(description=f"🔧 Утилиты | Показывает аватарку пользователя")
-    async def avatar(self, inter, user: disnake.Member = commands.Param(name="пользователь", description="Выберите пользователя")):
-        lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
-        member = user or inter.user
+    @commands.slash_command(description="🔧 Утилиты | Показывает аватарку пользователя")
+    async def avatar(self, inter, user: disnake.Member = commands.Param(None, name="пользователь", description="Выберите пользователя")):
+        lang = db.get(f"lang_{inter.guild.id}") or "ru"
         if user is None:
+            user = inter.user
             formats = [
                 f"PNG({user.display_avatar.replace(format='png', size=1024).url}) | ",
                 f"JPG({user.display_avatar.replace(format='jpg', size=1024).url})",
                 f" | WebP({user.display_avatar.replace(format='WebP', size=1024).url})",
                 f" | GIF({user.display_avatar.replace(format='gif', size=1024).url})" if user.display_avatar.is_animated() else ""
             ]
-            if lang_server == 'ru':
-                embed = disnake.Embed(title="Твоя аватарка", description=' '.join(formats), color=0x2b2d31)
-            if lang_server == 'en':
-                embed = disnake.Embed(title="You avatar", description=' '.join(formats), color=0x2b2d31)
-            if lang_server == 'uk':
-                embed = disnake.Embed(title="Твоя аватарка", description=' '.join(formats), color=0x2b2d31)
-            embed.set_image(url=inter.author_avatar.url)
+            message = {
+                'ru': 'Твоя аватарка',
+                'en': 'You avatar',
+                'uk': 'Твоя аватарка'    
+            }[lang]
+            embed = disnake.Embed(title=message, description=' '.join(formats), color=0x2b2d31)
+            embed.set_image(url=inter.user.display_avatar.url)
             await inter.send(embed=embed)
         else:
             formats = [
@@ -102,47 +137,15 @@ class CogUtils(commands.Cog):
                 f" | [WebP]({user.display_avatar.replace(format='webp', size=1024).url})",
                 f" | [GIF]({user.display_avatar.replace(format='gif', size=1024).url})" if user.display_avatar.is_animated() else ""
             ]
-            if lang_server == 'ru':
-                embed = disnake.Embed(title=f"Аватарка {'бота' if user.bot else 'пользователя'} {member.name}", description=' '.join(formats), color=0x2b2d31)
-            if lang_server == 'en':
-                embed = disnake.Embed(title=f"{'Bot' if user.bot else 'User'} avatar {member.name}", description=' '.join(formats), color=0x2b2d31)
-            if lang_server == 'uk':
-                embed = disnake.Embed(title=f"Аватарка {'бота' if user.bot else 'користувача'} {member.name}", description=' '.join(formats), color=0x2b2d31)
-            embed.set_image(url=member.display_avatar.url)
+            if lang == 'ru':
+                embed = disnake.Embed(title=f"Аватарка {'бота' if user.bot else 'пользователя'} {user.name}", description=' '.join(formats), color=0x2b2d31)
+            if lang == 'en':
+                embed = disnake.Embed(title=f"{'Bot' if user.bot else 'User'} avatar {user.name}", description=' '.join(formats), color=0x2b2d31)
+            if lang == 'uk':
+                embed = disnake.Embed(title=f"Аватарка {'бота' if user.bot else 'користувача'} {user.name}", description=' '.join(formats), color=0x2b2d31)
+            embed.set_image(url=user.display_avatar.url)
             await inter.send(embed=embed)
 
-    @commands.slash_command(description="🔧 Утилиты | Автороли")
-    @commands.has_permissions(administrator=True)
-    async def autorole(self, inter, role: disnake.Role):
-        lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
-        if role.name == "@everyone":
-            db.delete(f"autorole_{inter.guild.id}")
-            if lang_server == 'ru':
-                embed = disnake.Embed(description="**Автороль была убрана для сервера**", color=0x2b2d31)
-            elif lang_server == 'en':
-                embed = disnake.Embed(description="**Author role has been removed for the server**", color=0x2b2d31)
-            elif lang_server == 'uk':
-                embed = disnake.Embed(description="**Автороль була прибрана для сервера**", color=0x2b2d31)
-        else:
-            db.set(f"autorole_{inter.guild.id}", str(role.id))
-            if lang_server == 'ru':
-                embed = disnake.Embed(description=f"**Когда кто-то присоединяется к серверу, роль <@&{role.id}> будет автоматически выдана пользователю**", color=0x2b2d31)
-            elif lang_server == 'en':
-                embed = disnake.Embed(description=f"**When someone joins the server, the <@&{role.id}> role will automatically be assigned to the user**", color=0x2b2d31)
-            elif lang_server == 'uk':
-                embed = disnake.Embed(description=f"**Коли хтось приєднується до сервера, роль <@&{role.id}> буде автоматично видана користувачу**", color=0x2b2d31)
-        await inter.send(embed=embed)
-
-    @autorole.error
-    async def autorole_error(self, inter, error):
-        lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
-        if isinstance(error, commands.MissingPermissions):
-            if lang_server == 'ru':
-                await inter.send("У вас должно быть право администратора что бы установить автоматическую выдачу ролей", ephemeral=True)
-            if lang_server == 'en':
-                await inter.send("You must have administrator rights to set the automatic distribution of roles", ephemeral=True)
-            if lang_server == 'uk':
-                await inter.send("У вас має бути право адміністратора щоб встановити автоматичну видачу ролей", ephemeral=True)
 
 def setup(bot):
     bot.add_cog(CogUtils(bot))
