@@ -5,7 +5,6 @@ from db import SQLITE
 from googletrans import Translator
 
 db = SQLITE("database.db")
-filters = ['Сепия', 'Радуга', 'Стекло', 'Пиксели', 'Холод', 'Монохром', 'Светлый']
 animal_list = ['Лиса', 'Кошка', 'Собака', 'Птица', 'Коала', 'Кенгуру', 'Енот']
 
 async def translator(word, lang_server):
@@ -18,94 +17,117 @@ class ApiRequester(commands.Cog):
         self.bot = bot
         self.persistent_views_added = False
 
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await db.initialize()
+
+    API_URL = 'https://some-random-api.com/canvas/'
+    CHOICES = {
+        'Сепия': ['sepia?avatar={0}'], 
+        'Радуга': ['gay?avatar={0}'], 
+        'Стекло': ['glass?avatar={0}'], 
+        'Пиксели': ['pixelate?avatar={0}'], 
+        'Холод': ['blurple?avatar={0}'], 
+        'Монохром': ['threshold?avatar={0}'], 
+        'Светлый': ['brightness?avatar={0}']
+    }
 
     @commands.slash_command(description="🔧 Утилиты | Изменить стиль аватарки")
-    async def filter(self, inter, filter: str = commands.Param(name="фильтр", description="Выберите фильтр", choices=filters),
-        member: disnake.Member = commands.Param(name="пользователь", description="Выберите пользователя")):
+    async def filter(
+            self, inter, 
+            filter: str = commands.Param(
+                name="фильтр", 
+                description="Выберите фильтр", 
+                choices=list(CHOICES.keys()
+                )
+            ),
+        member: disnake.Member = commands.Param(
+            name="пользователь", 
+            description="Выберите пользователя"
+            )
+        ):
         try:
             await inter.response.defer()
-            lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
-            if lang_server == "ru":
-                embed = disnake.Embed(title="Результат:", color=0x2b2d31)
-                embed.set_author(name=f'Запросил: {inter.author.name}', icon_url=inter.author.display_avatar)
-            if lang_server == 'en':
-                embed = disnake.Embed(title="Result:", color=0x2b2d31)
-                embed.set_author(name=f'Requested: {inter.author.name}', icon_url=inter.author.display_avatar)
-            if lang_server == 'uk':
-                embed = disnake.Embed(title="Результат:", color=0x2b2d31)
-                embed.set_author(name=f'Запитав: {inter.author.name}', icon_url=inter.author.display_avatar)
-            if filter == 'Радуга':
-                resp = f"https://some-random-api.com/canvas/gay?avatar={member.display_avatar.url}"
-                embed.set_image(url=resp)
-                await inter.send(embed=embed)
-            elif filter == 'Сепия':
-                resp = f"https://some-random-api.com/canvas/sepia?avatar={member.display_avatar.url}"
-                embed.set_image(url=resp)
-                await inter.send(embed=embed)
-            elif filter == 'Стекло':
-                resp = f"https://some-random-api.com/canvas/glass?avatar={member.display_avatar.url}"
-                embed.set_image(url=resp)
-                await inter.send(embed=embed)
-            elif filter == 'Пиксели':
-                resp = f"https://some-random-api.com/canvas/misc/pixelate?avatar={member.display_avatar.url}"
-                embed.set_image(url=resp)
-                await inter.send(embed=embed)
-            elif filter == 'Холод':
-                resp = f"https://some-random-api.com/canvas/blurple?avatar={member.display_avatar.url}"
-                embed.set_image(url=resp)
-                await inter.send(embed=embed)
-            elif filter == 'Монохром':
-                resp = f"https://some-random-api.com/canvas/threshold?avatar={member.display_avatar.url}"
-                embed.set_image(url=resp)
-                await inter.send(embed=embed)
-            elif filter == 'Светлый':
-                resp = f"https://some-random-api.com/canvas/brightness?avatar={member.display_avatar.url}"
-                embed.set_image(url=resp)
-                await inter.send(embed=embed)
+            lang = await db.get(f"lang_{inter.guild.id}") or "ru"
+            message = {
+                'ru': 'Результат:',
+                'en': 'Result:',
+                'uk': 'Результат:'
+            }[lang]
+            embed = disnake.Embed(title=message, color=0x2b2d31)
+            data = self.CHOICES[filter][0].format(member.display_avatar.url)
+            resp = self.API_URL + data
+            embed.set_image(url=resp)
+            await inter.send(embed=embed)
         except Exception as e:
-            if lang_server == 'ru':
-                await inter.edit_original_message(embed=disnake.Embed(title="Что-то пошло не так...",
-                                                description=f"Я не могу выполнить данное действие по следующим причинам:\n- Данный API сейчас недоступен\n\n**Код ошибки (для опытных пользователей):**\n```js\n{e}```\n❓ Если это происходит не в первый раз, обратитесь на [**сервер поддержки**](https://discord.gg/SpTBwz4xsa)",
-                                                color=0x2b2d31))
-            if lang_server == 'en':
-                await inter.edit_original_message(embed=disnake.Embed(title="Something went wrong...",
-                                                description=f"I can't perform this action for the following reasons:\n- This API is currently unavailable\n\n**Error code (for advanced users):**\n```js\n{e}```\n❓ If this is not the first time this has happened, please contact [**support server**](https://discord.gg/SpTBwz4xsa)",
-                                                color=0x2b2d31))
-            if lang_server == 'uk':
-                await inter.edit_original_message(embed=disnake.Embed(title="Щось пішло не так...",
-                                                description=f"Я не можу виконати цю дію з наступних причин:\n- Даний API зараз недоступний\n\n**Код помилки (для досвідчених користувачів):**\n```js\n{e}```\n❓ Якщо це не вперше, зверніться на [**сервер підтримки**](https://discord.gg/SpTBwz4xsa)",
-                                                color=0x2b2d31))
+            message = {
+                'ru': {
+                    'title': 'Что-то пошло не так...',
+                    'description': 'Возникла проблема при отправке запроса на сервер'
+                },
+                'en': {
+                    'title': 'Something went wrong...',
+                    'description': 'There was a problem when sending a request to the server'
+                },
+                'uk': {
+                    'title': 'Щось пішло не так...',
+                    'description': ''
+                }
+            }
+            embed = disnake.Embed(
+                title=message[lang]['title'],
+                description=message[lang]['description'])
+            await inter.edit_original_message(embed=embed, color=0x2b2d31)
 
 
-    @commands.slash_command(description=f"😀 Развлечения | Выводит рандомную фотографию выбраного животного")
-    async def animal(self, inter, animal: str = commands.Param(name="животное", description="Выберите животного", choices=animal_list)):
+    @commands.slash_command(description="😀 Развлечения | Выводит рандомную фотографию выбраного животного")
+    async def animal(
+            self, inter, 
+            animal: str = commands.Param(
+                name="животное", 
+                description="Выберите животного", 
+                choices={'Лиса': 'fox', 
+                         'Енот': 'raccoon', 
+                         'Кошка': 'cat', 
+                         'Собака':'dog',
+                         'Птица': 'bird',
+                         'Кенгуру': 'kangaroo',
+                         'Коала': 'koala'}
+            )
+        ):
         await inter.response.defer()
-        lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
-        messages = {
+        lang = await db.get(f"lang_{inter.guild.id}") or "ru"
+        nfakt = {
             'ru': 'Факт:',
             'en': 'Fact:',
-            'uk': 'Факт:',
-        }
-        nfakt = messages[lang_server]
-        animals = {
-            'Лиса': "https://some-random-api.com/animal/fox",
-            'Енот': "https://some-random-api.com/animal/raccoon",
-            'Кошка': "https://some-random-api.com/animal/cat",
-            'Собака': "https://some-random-api.com/animal/dog",
-            'Птица': "https://some-random-api.com/animal/bird",
-            'Кенгуру': "https://some-random-api.com/animal/kangaroo",
-            'Коала': "https://some-random-api.com/animal/koala"
-        }
-        async with aiohttp.request("GET", animals[animal]) as resp:
-            if resp.status != 200:
-                return await inter.send("Api сейчас не доступен", ephemeral=True)
-            else:
+            'uk': 'Факт:'
+        }[lang]
+        try:
+            async with aiohttp.request("GET", f"https://some-random-api.com/animal/{animal}") as resp:
                 data = await resp.json()
-        word = data['fact']
-        fact = await translator(word, lang_server)
-        embed = disnake.Embed(description=f"**{nfakt}** {fact}", color=0x2b2d31)
-        embed.set_image(url=data['image'])
-        await inter.send(embed=embed)
+            word = data['fact']
+            fact = await translator(word, lang)
+            embed = disnake.Embed(description=f"**{nfakt}** {fact}", color=0x2b2d31)
+            embed.set_image(url=data['image'])
+            await inter.send(embed=embed)
+        except Exception as e:
+            message = {
+                'ru': {
+                    'title': 'Что-то пошло не так...',
+                    'description': 'Возникла проблема при отправке запроса на сервер'
+                },
+                'en': {
+                    'title': 'Something went wrong...',
+                    'description': 'There was a problem when sending a request to the server'
+                },
+                'uk': {
+                    'title': 'Щось пішло не так...',
+                    'description': 'Виникла проблема під час надсилання запиту на сервер'
+                }
+            }
+            embed = disnake.Embed(title=message[lang]['title'], description=message[lang]['description'])
+            await inter.send(embed=embed, color=0x2b2d31)
+
 
 def setup(bot):
     bot.add_cog(ApiRequester(bot))
