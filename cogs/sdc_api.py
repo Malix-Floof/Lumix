@@ -1,10 +1,6 @@
 import aiohttp
 from disnake.ext import commands, tasks
 from config import settings
-import logging
-
-log = logging.getLogger("SDC.connect")
-
 
 class SDCApi(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -23,17 +19,11 @@ class SDCApi(commands.Cog):
         }
         data = {
             "servers": len(self.bot.guilds),
-            "shards": 1,
+            "shards": self.bot.shard_count,
         }
         url = "https://api.server-discord.com/v2/bots/1006946815050006539/stats"
         async with self.session.post(url, headers=headers, data=data) as resp:
-            status = resp.status
-            if status == 200:
-                log.info("Статистика на SDC обновлена! Статус 200")
-            if status == 404:
-                log.info("[ ERR ] Не удалось обновить статистику на SDC!")
-            if status == 429:
-                log.info("[ ERR ] Слишком частые запросы на SDC!")
+            ...
 
     @sdc_stats.before_loop
     async def before_sdc_stats(self):
