@@ -10,45 +10,36 @@ class Logs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
-    # [ ] Участник перешел в другой голосовой канал
-    # [ ] Участник покинул голосовой канал
-    # [ ] Участник зашел в голосовой канал
     # [ ] Трибуна обновлена
     # [ ] Участник покинул канал трибуны
     # [ ] Участник зашел в канал трибуны
     # [ ] Трибуна закрыта
     # [ ] Трибуна открыта
-    # [ ] Сообщение было отредактировано
-    # [ ] Сообщение было удалено
     # [ ] Сообщения были очищены
     # [ ] Участник был размьючен
     # [ ] Участник был замьючен
     # [ ] Участник был разбанен
-    # [ ] Обновлены роли участника
-    # [X] Никнейм участника был изменен
-    # [X] Участник покинул сервер
     # [ ] Участник был изгнан
-    # [ ] Присоединился новый участник
-    # [X] Участник был забанен
-    # [X] Бот покинул сервер
-    # [X] Бот был добавлен на сервер
-
+    
     @commands.Cog.listener()
     async def on_member_join(self, member):
         lang_server = db.get(f"lang_{member.guild.id}") or "ru"
         logchannel = db.get(f"logchannel_{member.guild.id}")
         if logchannel is None:
             return
+        
         channel = self.bot.get_channel(int(logchannel))
+        if channel is None:
+            return
+        
         inviter_logs = await member.guild.audit_logs(limit=1).flatten()
-        if lang_server == 'ru':
-            inviter = inviter_logs[0].user.id if inviter_logs else "неизвестен"
-        if lang_server == 'en':
-            inviter = inviter_logs[0].user.id if inviter_logs else "unknown"
-        if lang_server == 'uk':
-            inviter = inviter_logs[0].user.id if inviter_logs else "невідомий"
-
+        unkinver = {
+            'ru': 'неизвестен',
+            'en': 'unknown',
+            'uk': 'невідомий'
+        }
+        inviter = inviter_logs[0].user.id if inviter_logs else unkinver[lang_server]
+        
         if lang_server == 'ru':
             if member.bot:
                 embed = disnake.Embed(description=f"Бот {member.mention} (`{member.name}`) был добавлен пользователем <@{inviter}>", timestamp=datetime.datetime.now(),  color=0x2b2d31)
@@ -92,14 +83,16 @@ class Logs(commands.Cog):
         if logchannel is None:
             return
         channel = self.bot.get_channel(int(logchannel))
+        if channel is None:
+            return
         roles = [role.mention for role in reversed(member.roles[1:])]
         if len(roles) > 15:
             if lang_server == 'ru':
-                roles = roles[:15] + ["\nи еще {} ролей...".format(len(roles) - 15)]
+                roles = roles[:15] + [f"\nи еще {len(roles) - 15} ролей..."]
             if lang_server == 'en':
-                roles = roles[:15] + ["\nand {} more roles...".format(len(roles) - 15)]
+                roles = roles[:15] + [f"\nand {len(roles) - 15} more roles..."]
             if lang_server == 'uk':
-                roles = roles[:15] + ["\nта ще {} ролей...".format(len(roles) - 15)]
+                roles = roles[:15] + [f"\nта ще {len(roles) - 15} ролей..."]
 
         if lang_server == 'ru':
             if member.bot:
@@ -143,6 +136,8 @@ class Logs(commands.Cog):
         if logchannel is None:
             return
         channel = self.bot.get_channel(int(logchannel))
+        if channel is None:
+            return
         if user.bot:
         	return
         if lang_server == 'ru':
@@ -154,18 +149,18 @@ class Logs(commands.Cog):
         roles = [role.mention for role in reversed(user.roles[1:])]
         if len(roles) > 15:
             if lang_server == 'ru':
-                roles = roles[:15] + ["\nи еще {} ролей...".format(len(roles) - 15)]
+                roles = roles[:15] + [f"\nи еще {len(roles) - 15} ролей..."]
             if lang_server == 'en':
-                roles = roles[:15] + ["\nand {} more roles...".format(len(roles) - 15)]
+                roles = roles[:15] + [f"\nand {len(roles) - 15} more roles..."]
             if lang_server == 'uk':
-                roles = roles[:15] + ["\nта ще {} ролей...".format(len(roles) - 15)]
+                roles = roles[:15] + [f"\nта ще {len(roles) - 15} ролей..."]
         if roles is None:
-            if lang_server == 'ru':
-                roles = 'Отсутствуют'
-            if lang_server == 'en':
-                roles = 'None'
-            if lang_server == 'uk':
-                roles = 'Відсутні'
+            roles = {
+                'ru': 'Отсутствуют',
+                'en': 'None',
+                'uk': 'Відсутні'
+            }[lang_server]
+            
         if lang_server == 'ru':
             embed.add_field(name="Роли:", value=' '.join(roles))
         if lang_server == 'en':
@@ -182,7 +177,11 @@ class Logs(commands.Cog):
         logchannel = db.get(f"logchannel_{guild.id}")
         if logchannel is None:
             return
+        
         channel = self.bot.get_channel(int(logchannel))
+        if channel is None:
+            return
+        
         if lang_server == 'ru':
             embed = disnake.Embed(description=f"Участник {user.mention} (`{user.name}`) был разбанен на сервере", timestamp=datetime.datetime.now(), color=0x2b2d31)
         if lang_server == 'en':
@@ -200,7 +199,9 @@ class Logs(commands.Cog):
         if logchannel is None:
             return
         channel = self.bot.get_channel(int(logchannel))
-
+        if channel is None:
+            return
+        
         if before.nick != after.nick:
             if lang_server == 'ru':
                 embed = disnake.Embed(description=f"Никнейм пользователя `{after.nick}` был обновлён", timestamp=datetime.datetime.now(), color=0x2b2d31)
@@ -248,11 +249,16 @@ class Logs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
+        if before.author.bot:
+            return
         lang_server = db.get(f"lang_{before.guild.id}") or "ru"
         logchannel = db.get(f"logchannel_{before.guild.id}")
         if logchannel is None:
             return
         channel = self.bot.get_channel(int(logchannel))
+        if channel is None:
+            return
+        
         if before.content == after.content:
             return
         if lang_server == 'ru':
@@ -280,11 +286,15 @@ class Logs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
+        if message.author.bot:
+            return
         lang_server = db.get(f"lang_{message.guild.id}") or "ru"
         logchannel = db.get(f"logchannel_{message.guild.id}")
         if logchannel is None:
             return
         channel = self.bot.get_channel(int(logchannel))
+        if channel is None:
+            return
         message_content = message.content
         if message_content == '':
             return
@@ -336,6 +346,8 @@ class Logs(commands.Cog):
             return
 
         channel = self.bot.get_channel(int(logchannel))
+        if channel is None:
+            return
 
         lang_texts = {
             'ru': {
@@ -394,15 +406,18 @@ class Logs(commands.Cog):
         if logchannel is None:
             return
         channel = self.bot.get_channel(int(logchannel))
+        if channel is None:
+            return 
+        
         if lang_server == 'ru':
             embed = disnake.Embed(title="Роль создана", description=f"Создана роль {role.mention}", timestamp=datetime.datetime.now(), color=0x2b2d31)
-            embed.set_footer(text=f"ID роли: {member.id}")
+            embed.set_footer(text=f"ID роли: {role.id}")
         if lang_server == 'en':
             embed = disnake.Embed(title="Role created", description=f"Role created {role.mention}", timestamp=datetime.datetime.now(), color=0x2b2d31)
-            embed.set_footer(text=f"Role ID: {member.id}")
+            embed.set_footer(text=f"Role ID: {role.id}")
         if lang_server == 'uk':
             embed = disnake.Embed(title="Роль створена", description=f"Створено роль {role.mention}", timestamp=datetime.datetime.now(), color=0x2b2d31)
-            embed.set_footer(text=f"ID ролі: {member.id}")
+            embed.set_footer(text=f"ID ролі: {role.id}")
         await channel.send(embed=embed)
 
     @commands.Cog.listener()
@@ -412,54 +427,71 @@ class Logs(commands.Cog):
         if logchannel is None:
             return
         channel = self.bot.get_channel(int(logchannel))
+        if channel is None:
+            return
         if lang_server == 'ru':
             embed = disnake.Embed(title="Роль удалена", description=f"Удалена роль `@{role.name}`", timestamp=datetime.datetime.now(), color=0x2b2d31)
+            embed.set_footer(text=f"ID роли: {role.id}")
+            await channel.send(embed=embed)
         if lang_server == 'en':
             embed = disnake.Embed(title="Role removed", description=f"Removed role `@{role.name}`", timestamp=datetime.datetime.now(), color=0x2b2d31)
+            embed.set_footer(text=f"Role ID: {role.id}")
+            await channel.send(embed=embed)
         if lang_server == 'uk':
             embed = disnake.Embed(title="Роль видалена", description=f"Вилучена роль `@{role.name}`", timestamp=datetime.datetime.now(), color=0x2b2d31)
-        await channel.send(embed=embed)
+            embed.set_footer(text=f"ID ролі: {role.id}")
+            await channel.send(embed=embed)
 
     @commands.Cog.listener()
-    async def on_guild_channel_create(self, channel):
-        lang_server = db.get(f"lang_{channel.guild.id}") or "ru"
-        logchannel = db.get(f"logchannel_{channel.guild.id}")
+    async def on_guild_channel_create(self, chann):
+        lang_server = db.get(f"lang_{chann.guild.id}") or "ru"
+        logchannel = db.get(f"logchannel_{chann.guild.id}")
         if logchannel is None:
             return
         channel = self.bot.get_channel(int(logchannel))
+        if channel is None:
+            return
         if lang_server == 'ru':
-            embed = disnake.Embed(title='Канал был создан', description = f'Канал {channel.mention} был создан', timestamp=datetime.datetime.now(), color=0x2b2d31)
+            embed = disnake.Embed(title='Канал был создан', description = f'Канал {chann.mention} был создан', timestamp=datetime.datetime.now(), color=0x2b2d31)
             embed.set_footer(text=f"ID канала: {channel.id}")
         if lang_server == 'en':
-            embed = disnake.Embed(title='The channel has been created', description = f'Channel {channel.mention} has been created', timestamp=datetime.datetime.now(), color=0x2b2d31)
+            embed = disnake.Embed(title='The channel has been created', description = f'Channel {chann.mention} has been created', timestamp=datetime.datetime.now(), color=0x2b2d31)
             embed.set_footer(text=f"Channel ID: {channel.id}")
         if lang_server == 'uk':
-            embed = disnake.Embed(title='Канал було створено', description = f'Канал {channel.mention} був створений', timestamp=datetime.datetime.now(), color=0x2b2d31)
+            embed = disnake.Embed(title='Канал було створено', description = f'Канал {chann.mention} був створений', timestamp=datetime.datetime.now(), color=0x2b2d31)
             embed.set_footer(text=f"ID каналу: {channel.id}")
         await channel.send(embed=embed)
 
     @commands.Cog.listener()
-    async def on_guild_channel_delete(self, channel):
-        lang_server = db.get(f"lang_{channel.guild.id}") or "ru"
-        logchannel = db.get(f"logchannel_{channel.guild.id}")
+    async def on_guild_channel_delete(self, chann):
+        lang_server = db.get(f"lang_{chann.guild.id}") or "ru"
+        logchannel = db.get(f"logchannel_{chann.guild.id}")
         if logchannel is None:
             return
         channel = self.bot.get_channel(int(logchannel))
+        if channel is None:
+            return
         if lang_server == 'ru':
-            embed = disnake.Embed(title='Канал был удалён', description = f'Канал `#{channel.name}` был удалён', timestamp=datetime.datetime.now(), color=0x2b2d31)
+            embed = disnake.Embed(title='Канал был удалён', description = f'Канал `#{chann.name}` был удалён', timestamp=datetime.datetime.now(), color=0x2b2d31)
         if lang_server == 'en':
-            embed = disnake.Embed(title='The channel has been deleted', description = f'Channel `#{channel.name}` has been deleted', timestamp=datetime.datetime.now(), color=0x2b2d31)
+            embed = disnake.Embed(title='The channel has been deleted', description = f'Channel `#{chann.name}` has been deleted', timestamp=datetime.datetime.now(), color=0x2b2d31)
         if lang_server == 'uk':
-            embed = disnake.Embed(title='Канал був вилучений', description = f'Канал `#{channel.name}` був вилучений', timestamp=datetime.datetime.now(), color=0x2b2d31)
+            embed = disnake.Embed(title='Канал був вилучений', description = f'Канал `#{chann.name}` був вилучений', timestamp=datetime.datetime.now(), color=0x2b2d31)
         await channel.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_channel_update(self, before, after):
+        
         lang_server = db.get(f"lang_{after.guild.id}") or "ru"
         logchannel = db.get(f"logchannel_{after.guild.id}")
         if logchannel is None:
             return
         channel = self.bot.get_channel(int(logchannel))
+        if channel is None:
+            return
+        
+        embed = None
+
         if before.name != after.name:
             if lang_server == 'ru':
                 embed = disnake.Embed(title='Канал был обновлён', description=f'Канал `#{before.name}` был переименован в `#{after.name}` ({after.mention})', 
@@ -470,6 +502,35 @@ class Logs(commands.Cog):
             if lang_server == 'uk':
                 embed = disnake.Embed(title='Канал було оновлено', description=f'Канал `#{before.name}` був перейменований на `#{after.name}` ({after.mention})', 
                     timestamp=datetime.datetime.now(), color=0x2b2d31)
+            return await channel.send(embed=embed)
+
+        if before.type == disnake.ChannelType.voice or disnake.ChannelType.category:
+            return
+
+        if before.topic != "" and after.topic == "":
+            if lang_server == 'ru':
+                embed = disnake.Embed(title='Канал был обновлён', description=f'Тема канала {after.mention} была убрана', timestamp=datetime.datetime.now(), color=0x2b2d31)
+                embed.add_field(name='Тема:', value=f'```\n{before.topic}\n```', inline=False)
+            if lang_server == 'en':
+                embed = disnake.Embed(title='The channel has been updated', description=f'Channel topic {after.mention} was removed', timestamp=datetime.datetime.now(), color=0x2b2d31)
+                embed.add_field(name='Topic:', value=f'```\n{before.topic}\n```', inline=False)
+            if lang_server == 'uk':
+                embed = disnake.Embed(title='Канал було оновлено', description=f'Тему каналу {after.mention} була прибрана', timestamp=datetime.datetime.now(), color=0x2b2d31)
+                embed.add_field(name='Тему:', value=f'```\n{before.topic}\n```', inline=False)
+            return await channel.send(embed=embed)
+            
+        if before.topic == "" and after.topic != "":
+            if lang_server == 'ru':
+                embed = disnake.Embed(title='Канал был обновлён', description=f'Тема канала {after.mention} была добавлена', timestamp=datetime.datetime.now(), color=0x2b2d31)
+                embed.add_field(name='Тема:', value=f'```\n{after.topic}\n```', inline=False)
+            if lang_server == 'en':
+                embed = disnake.Embed(title='The channel has been updated', description=f'Channel topic {after.mention} has been added', timestamp=datetime.datetime.now(), color=0x2b2d31)
+                embed.add_field(name='Topic:', value=f'```\n{after.topic}\n```', inline=False)
+            if lang_server == 'uk':
+                embed = disnake.Embed(title='Канал було оновлено', description=f'Тему каналу {after.mention} було додано', timestamp=datetime.datetime.now(), color=0x2b2d31)
+                embed.add_field(name='Тему:', value=f'```\n{after.topic}\n```', inline=False)
+            return await channel.send(embed=embed)
+            
         if before.topic != after.topic:
             if lang_server == 'ru':
                 embed = disnake.Embed(title='Канал был обновлён', description=f'Тема канала {after.mention} была изменена', timestamp=datetime.datetime.now(), color=0x2b2d31)
@@ -483,7 +544,7 @@ class Logs(commands.Cog):
                 embed = disnake.Embed(title='Канал було оновлено', description=f'Тему каналу {after.mention} було змінено', timestamp=datetime.datetime.now(), color=0x2b2d31)
                 embed.add_field(name='До:', value=f'```\n{before.topic}\n```', inline=False)
                 embed.add_field(name='Після:', value=f'```\n{after.topic}\n```', inline=False)
-        await channel.send(embed=embed)
+            await channel.send(embed=embed)
 
     @commands.slash_command(description='🔧 Утилиты | Установить канал для логов')
     @commands.has_permissions(view_audit_log=True)
