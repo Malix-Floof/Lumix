@@ -1,5 +1,5 @@
 <p align="light">
-  <h1 align="light" style="color: #B64FFF"><img src="https://images-ext-2.discordapp.net/external/ssnOTmCkEAFHFskNH6QNxF-Pedh9IiDEjYccDOHzUpM/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/1006946815050006539/a6c45c9b6ba2461a581269ce71595c4e.png" width="50"> ✨ Lumix </h1>
+  <h1 align="light" style="color: #B64FFF"><img src="https://cdn.discordapp.com/attachments/1151406452611751936/1185874455273152553/imgonline-com-ua-Shape-lg8uJpecCNjzKokp.png" width="50"> ✨ Lumix </h1>
   <p align="light">
     <a href="https://www.python.org/">
     	<img src="https://img.shields.io/badge/Python%203.11.7-pink.svg" />
