@@ -13,11 +13,11 @@
     <a href="https://www.python.org/">
     	<img src="https://img.shields.io/badge/Python-3.11.7-blue">
     </a>
-    <a href="https://discord.gg/2HqTa66bZA">
-        <img src="https://discord.com/api/guilds/1019681172940390430/widget.png" alt="Discord Server">
-    </a>
     <a>
         <img src="https://img.shields.io/badge/license-MIT-green" alt="LICENSE MIT">
+    </a>
+    <a href="https://discord.gg/2HqTa66bZA">
+        <img src="https://discord.com/api/guilds/1019681172940390430/widget.png" alt="Discord Server">
     </a>
   </p>
 </p>
