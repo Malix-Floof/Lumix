@@ -13,15 +13,10 @@ settings = {
 }
 
 lavalink = {
-    'host': '141.144.236.91',
-    'port': 7000,
-    'password': 'FuckMyMind123123',
-    'identifier': 'Tyad',
-}
-
-keys = {
-    'spotifyID': '1e2c35ce7dec4002bae295a717f313c5',
-    'clientSecret': 'd3c79fc6480d447280ad01fde4455f02'
+    'host': 'host ip',
+    'port': 80,
+    'password': 'lavalink password',
+    'identifier': 'lavalink name',
 }
 
 playerSettings = {
@@ -29,6 +24,7 @@ playerSettings = {
     'playerProgressCount': 10,
     'waiting': 0
 }
+
 emojis = {
     'playEmoji': '▶️',
     'stopEmoji': '⏹️',
