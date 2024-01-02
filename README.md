@@ -11,7 +11,7 @@
       <img src="https://img.shields.io/badge/disnake-py-blue.svg" alt="disnake.py">
     </a>
     <a href="https://www.python.org/">
-    	<img src="https://img.shields.io/badge/Python%203.11.7-pink.svg" />
+    	<img src="https://img.shields.io/badge/Python_3.11.7" />
     </a>
     <a href="https://discord.gg/2HqTa66bZA">
         <img src="https://discord.com/api/guilds/1019681172940390430/widget.png" alt="Discord Server">
