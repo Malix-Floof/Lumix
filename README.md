@@ -9,11 +9,6 @@
     </a>
   </p>
 </p>
-<style>
-.h1 img {
-    border-radius: 50%;
-}
-</style>
 
 ___
 
