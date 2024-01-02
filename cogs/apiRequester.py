@@ -8,18 +8,12 @@ db = SQLITE("database.db")
 animal_list = ['Лиса', 'Кошка', 'Собака', 'Птица', 'Коала', 'Кенгуру', 'Енот']
 
 async def translator(word, lang_server):
-    translator = Translator()
-    result = translator.translate(word, dest = lang_server)
-    return result.text
+    return Translator().translate(word, dest = lang_server)
 
 class ApiRequester(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.persistent_views_added = False
-
-    @commands.Cog.listener()
-    async def on_ready(self):
-        await db.initialize()
 
     API_URL = 'https://some-random-api.com/canvas/'
     CHOICES = {
@@ -96,7 +90,7 @@ class ApiRequester(commands.Cog):
             )
         ):
         await inter.response.defer()
-        lang = await db.get(f"lang_{inter.guild.id}") or "ru"
+        lang = db.get(f"lang_{inter.guild.id}") or "ru"
         nfakt = {
             'ru': 'Факт:',
             'en': 'Fact:',
