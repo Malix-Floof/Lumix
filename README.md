@@ -1,6 +1,15 @@
 <p align="light">
-  <h1 align="light" style="color: #B64FFF"><img src="https://cdn.discordapp.com/attachments/1151406452611751936/1185874455273152553/imgonline-com-ua-Shape-lg8uJpecCNjzKokp.png" width="50"> ✨ Lumix </h1>
+<h1 align="center">
+  <br>
+  <a><img src="![image](https://github.com/Malix-Dev/Lumix/assets/101697781/ac867cca-de5f-4333-8ca2-823b4239d866)" alt=" ✨ Lumix"></a>
+  <br>
+   ✨ Lumix
+  <br>
+</h1>
   <p align="light">
+    <a href="https://www.python.org/">
+    	<img src="https://img.shields.io/badge/Python%203.11.7-pink.svg" />
+    </a>
     <a href="https://www.python.org/">
     	<img src="https://img.shields.io/badge/Python%203.11.7-pink.svg" />
     </a>
@@ -18,9 +27,7 @@ Unleash the potential of your server with music, logs, moderation and more.
 🌟 Meet Lumix - your reliable companion with the magic of multifunctional commands and exciting tricks!
 Multi-language support: English, Russian and Ukrainian
 
-Open the world of music with the ability to play tracks
-
-from such sources as Spotify / SoundCloud / Yandex Music / BandCamp and also manage your music queue through a convenient control panel.
+Open the world of music with the ability to play tracks from such sources as Spotify / SoundCloud / Yandex Music / BandCamp and also manage your music queue through a convenient control panel
 
 Configure self-assignment of roles when users log in to the server
 
