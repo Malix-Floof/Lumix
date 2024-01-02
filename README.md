@@ -14,7 +14,7 @@
     	<img src="https://img.shields.io/badge/Python%203.11.7-pink.svg" />
     </a>
     <a href="https://discord.gg/2HqTa66bZA">
-	<img src="https://img.shields.io/discord/1130589089658306672.svg">
+        <img src="https://discord.com/api/guilds/1019681172940390430/widget.png" alt="Discord Server">
     </a>
   </p>
 </p>
