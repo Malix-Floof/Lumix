@@ -16,7 +16,9 @@
     <a href="https://discord.gg/2HqTa66bZA">
         <img src="https://discord.com/api/guilds/1019681172940390430/widget.png" alt="Discord Server">
     </a>
-    [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+    <a>
+        <img src="https://img.shields.io/badge/license-MIT-green" alt="LICENSE MIT">
+    </a>
   </p>
 </p>
 
