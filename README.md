@@ -4,7 +4,7 @@
     <a href="https://www.python.org/">
     	<img src="https://img.shields.io/badge/Python%203.11.7-pink.svg" />
     </a>
-    <a href="https://discord.gg/dmAaJZS8XM">
+    <a href="https://discord.gg/2HqTa66bZA">
 	<img src="https://img.shields.io/discord/1130589089658306672.svg">
     </a>
   </p>
