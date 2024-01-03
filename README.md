@@ -1,16 +1,4 @@
-<p align="light">
-<h1 align="center">
-  <br>
-  <a><img src="https://cdn.discordapp.com/attachments/1151406452611751936/1191827299566366740/Lumix-CC_1.png" alt=" ✨ Lumix"></a>
-  <br>
-   ✨ Lumix
-  <br>
-</h1>
-<h4 align="center">The ultimate Discord bot for expanding your server's capabilities✨</h4>
-![disnake.py](https://img.shields.io/badge/disnake-py-blue.svg)
-![python](https://img.shields.io/badge/Python-3.11.7-blue)
-![LICENSE MIT](https://img.shields.io/badge/license-MIT-green)
-![Discord server](https://discord.com/api/guilds/1019681172940390430/widget.png)
+![Static Badge](https://img.shields.io/badge/Lumix-%D0%BF%D1%80%D0%B8%D0%B3%D0%BB%D0%B0%D1%81%D0%B8%D1%82%D1%8C-pink?logo=disnake)
 
 ## Description
 Unleash the potential of your server with music, logs, moderation and more.
