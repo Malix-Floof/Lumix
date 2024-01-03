@@ -42,7 +42,7 @@ class SDCApi(commands.Cog):
             "servers": len(self.bot.guilds),
             "shards": self.bot.shard_count,
         }
-        url = "https://api.server-discord.com/v2/bots/1006946815050006539/stats"
+        url = f"https://api.server-discord.com/v2/bots/{self.bot.user.id}/stats"
         async with self.session.post(url, headers=headers, data=data) as resp:
             ...
 
