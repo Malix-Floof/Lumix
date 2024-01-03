@@ -23,8 +23,6 @@
 </p>
 </p>
 
-___
-
 ## Description
 Unleash the potential of your server with music, logs, moderation and more.
 
