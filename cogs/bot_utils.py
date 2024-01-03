@@ -37,11 +37,6 @@ class CogUtils(commands.Cog):
         self.persistent_views_added = False
 
     @commands.Cog.listener()
-    async def on_ready(self):
-        print("utils.py is ready")
-        await db.initialize()
-
-    @commands.Cog.listener()
     async def on_member_join(self, member):
         autorole = db.get(f"autorole_{member.guild.id}")
         if autorole is None:
