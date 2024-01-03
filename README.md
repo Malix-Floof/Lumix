@@ -6,7 +6,7 @@
    ✨ Lumix
   <br>
 </h1>
-<h4 align="center">Music, Moderation, Trivia, Stream Alerts and Fully Modular.</h4>
+<h4 align="center"> </h4>
 <p align="center">
   <a href="https://github.com/Rapptz/discord.py/">
     <img src="https://img.shields.io/badge/disnake-py-blue.svg" alt="disnake.py">
