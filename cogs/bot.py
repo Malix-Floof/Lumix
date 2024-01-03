@@ -22,10 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import psutil
 import disnake
+
 from disnake.ext import commands
 from config import settings
-import psutil
 from platform import python_version
 from humanize import naturalsize
 from datetime import datetime
