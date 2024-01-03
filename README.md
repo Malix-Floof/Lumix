@@ -7,21 +7,10 @@
   <br>
 </h1>
 <h4 align="center">The ultimate Discord bot for expanding your server's capabilities✨</h4>
-<p align="center">
-  <a href="https://github.com/Rapptz/discord.py/">
-    <img src="https://img.shields.io/badge/disnake-py-blue.svg" alt="disnake.py">
-  </a>
-  <a href="https://www.python.org/">
-    <img src="https://img.shields.io/badge/Python-3.11.7-blue">
-  </a>
-  <a>
-    <img src="https://img.shields.io/badge/license-MIT-green" alt="LICENSE MIT">
-  </a>
-  <a href="https://discord.gg/2HqTa66bZA">
-    <img src="https://discord.com/api/guilds/1019681172940390430/widget.png" alt="Discord Server">
-  </a>
-</p>
-</p>
+[!disnake.py](https://img.shields.io/badge/disnake-py-blue.svg)
+[!python](https://img.shields.io/badge/Python-3.11.7-blue)
+[!LICENSE MIT](https://img.shields.io/badge/license-MIT-green)
+[!Discord server](https://discord.com/api/guilds/1019681172940390430/widget.png)
 
 ## Description
 Unleash the potential of your server with music, logs, moderation and more.
