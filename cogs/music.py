@@ -53,7 +53,7 @@ class Music(commands.Cog):
         await player.disconnect()
         self.update_embed.cancel()
         message = self.message_controller.get(player.guild.id)
-        if message is not None:
+        if message:
             await message.edit(components=[])
         db.set(f"message_controller_{player.guild.id}", "0")
         i = player.guild.id
@@ -72,7 +72,7 @@ class Music(commands.Cog):
                 await event.player.play(self.queues[event.player.guild.id].pop(0))
         else:
             message = self.message_controller.get(event.player.guild.id)
-            if message is not None:
+            if message:
                 await message.edit(components=[])
 
     @commands.Cog.listener()
