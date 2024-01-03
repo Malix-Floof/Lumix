@@ -1,5 +1,30 @@
+"""
+MIT License
+
+Copyright (c) 2022 - 2024 Tasfers
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 import disnake
 import re
+
 from random import choice
 from disnake.ext import commands
 from db import SQLITE
@@ -12,17 +37,12 @@ class Moderation(commands.Cog):
         self.bot = bot
         self.persistent_views_added = False
 
-    @commands.Cog.listener()
-    async def on_ready(self):
-        await db.initialize()
-        print('[ ОК ] Запущен moder.py')
-
     @commands.slash_command(description="🛡️ Модерация | Удаляет сообщения")
     @commands.bot_has_permissions(manage_messages=True)
     @commands.has_permissions(manage_messages=True)
     async def clear(self, inter, amount: commands.Range[int, 1, 100] = commands.Param(
                 name="количество", description="Лимит для удаления сообщений: 100")):
-        lang_server = await db.get(f"lang_{inter.guild.id}") or "ru"
+        lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
         await inter.channel.purge(limit=amount)
         await inter.response.defer()
         message = {
@@ -35,7 +55,7 @@ class Moderation(commands.Cog):
 
     @clear.error
     async def clear_error(self, inter, error):
-        lang_server = await db.get(f"lang_{inter.guild.id}") or "ru"
+        lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
         if isinstance(error, commands.BotMissingPermissions):
             message = {
                 'ru': 'У бота недостаточно прав для отчистки сообщений',
@@ -327,9 +347,6 @@ class Moderation(commands.Cog):
                 await inter.send(embed=disnake.Embed(
                     title="Помилка при спробі розблокувати користувача",
                     description="- Даний користувач не має обмежень\n- Вказаний не відомий користувач\n- У вас недостатньо прав\n- У мене недостатньо прав", color=0x2b2d31))
-
-
-
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
