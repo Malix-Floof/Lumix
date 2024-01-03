@@ -1,4 +1,4 @@
-![image](https://github.com/Malix-Dev/Lumix/assets/101697781/91c88bb5-784a-4e8a-8d29-8e6d561c5f9f)<p align="light">
+<p align="light">
 <h1 align="center">
   <br>
   <a><img src="https://cdn.discordapp.com/attachments/1151406452611751936/1191827299566366740/Lumix-CC_1.png" alt=" ✨ Lumix"></a>
