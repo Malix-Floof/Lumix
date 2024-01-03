@@ -78,18 +78,16 @@ class CogUtils(commands.Cog):
     @commands.slash_command(description="🔧 Утилиты | Показать баннер участника")
     async def banner(self, inter, member: disnake.Member = commands.Param(None, name="участник", description="Укажите участника")):
         lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
-        if member is None:
-            member = await self.bot.fetch_user(inter.author.id)
-        else:
-            member = await self.bot.fetch_user(member.id)
+        member = member or inter.user
+        member = await self.bot.fetch_user(member.id)
 
         if member.banner is None:
-            if lang_server == 'ru':
-                await inter.send("У пользователя не установлен баннер", ephemeral=True)
-            if lang_server == 'en':
-                await inter.send("The user does not have a banner", ephemeral=True)
-            if lang_server == 'uk':
-                await inter.send("У користувача не встановлено банер", ephemeral=True)
+            message = {
+                'ru': 'У пользователя не установлен баннер',
+                'en': 'The user does not have a banner',
+                'uk': 'У користувача не встановлено банер'
+            }
+            await inter.send(message[lang_server], ephemeral=True)
         else:
             if lang_server == 'ru':
                 embed = disnake.Embed(title=f"Баннер — {member}", description=f"[Скачать]({member.banner})", color=0x2b2d31)
@@ -100,10 +98,18 @@ class CogUtils(commands.Cog):
             embed.set_image(url=member.banner)
             await inter.send(embed=embed)
 
-    langs = ['Английский', 'Арабский', 'Белорусский', 'Русский', 'Украинский']
-
     @commands.slash_command(description="🔧 Утилиты | Создать озвучку")
-    async def gtts(self, inter, lang: str = commands.Param(name="язык", description="Выберите язык для озвучивания", choices=langs), text: str = commands.Param(name="текст", description="Какой текст озвучить?")):
+    async def gtts(
+            self, inter, 
+            lang: str = commands.Param(
+                name="язык", 
+                description="Выберите язык для озвучивания", 
+                choices=['Английский', 'Арабский', 'Белорусский', 'Русский', 'Украинский']), 
+            text: str = commands.Param(
+                name="текст", 
+                description="Какой текст озвучить?"
+            )
+    ):
         lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
         lang_map = {
             'Английский': 'en',
@@ -139,37 +145,21 @@ class CogUtils(commands.Cog):
     @commands.slash_command(description="🔧 Утилиты | Показывает аватарку пользователя")
     async def avatar(self, inter, user: disnake.Member = commands.Param(None, name="пользователь", description="Выберите пользователя")):
         lang = db.get(f"lang_{inter.guild.id}") or "ru"
-        if user is None:
-            user = inter.user
-            formats = [
-                f"PNG({user.display_avatar.replace(format='png', size=1024).url}) | ",
-                f"JPG({user.display_avatar.replace(format='jpg', size=1024).url})",
-                f" | WebP({user.display_avatar.replace(format='WebP', size=1024).url})",
-                f" | GIF({user.display_avatar.replace(format='gif', size=1024).url})" if user.display_avatar.is_animated() else ""
-            ]
-            message = {
-                'ru': 'Твоя аватарка',
-                'en': 'You avatar',
-                'uk': 'Твоя аватарка'    
-            }[lang]
-            embed = disnake.Embed(title=message, description=' '.join(formats), color=0x2b2d31)
-            embed.set_image(url=inter.user.display_avatar.url)
-            await inter.send(embed=embed)
-        else:
-            formats = [
-                f"[PNG]({user.display_avatar.replace(format='png', size=1024).url}) | ",
-                f"[JPG]({user.display_avatar.replace(format='jpg', size=1024).url})",
-                f" | [WebP]({user.display_avatar.replace(format='webp', size=1024).url})",
-                f" | [GIF]({user.display_avatar.replace(format='gif', size=1024).url})" if user.display_avatar.is_animated() else ""
-            ]
-            if lang == 'ru':
-                embed = disnake.Embed(title=f"Аватарка {'бота' if user.bot else 'пользователя'} {user.name}", description=' '.join(formats), color=0x2b2d31)
-            if lang == 'en':
-                embed = disnake.Embed(title=f"{'Bot' if user.bot else 'User'} avatar {user.name}", description=' '.join(formats), color=0x2b2d31)
-            if lang == 'uk':
-                embed = disnake.Embed(title=f"Аватарка {'бота' if user.bot else 'користувача'} {user.name}", description=' '.join(formats), color=0x2b2d31)
-            embed.set_image(url=user.display_avatar.url)
-            await inter.send(embed=embed)
+        user = user or inter.user
+        formats = [
+            f"[PNG]({user.display_avatar.replace(format='png', size=1024).url}) | ",
+            f"[JPG]({user.display_avatar.replace(format='jpg', size=1024).url})",
+            f" | [WebP]({user.display_avatar.replace(format='webp', size=1024).url})",
+            f" | [GIF]({user.display_avatar.replace(format='gif', size=1024).url})" if user.display_avatar.is_animated() else ""
+        ]
+        if lang == 'ru':
+            embed = disnake.Embed(title=f"Аватарка {'бота' if user.bot else 'пользователя'} {user.name}", description=' '.join(formats), color=0x2b2d31)
+        if lang == 'en':
+            embed = disnake.Embed(title=f"{'Bot' if user.bot else 'User'} avatar {user.name}", description=' '.join(formats), color=0x2b2d31)
+        if lang == 'uk':
+            embed = disnake.Embed(title=f"Аватарка {'бота' if user.bot else 'користувача'} {user.name}", description=' '.join(formats), color=0x2b2d31)
+        embed.set_image(url=user.display_avatar.url)
+        await inter.send(embed=embed)
 
 
 def setup(bot):
