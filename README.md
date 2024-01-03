@@ -7,9 +7,10 @@
   <br>
 </h1>
 <h4 align="center">
-  <br>
+
   The ultimate Discord bot for expanding your server's capabilities✨
-  </br>
+
+
   ![disnake.py](https://img.shields.io/badge/disnake-py-blue.svg)
   ![python](https://img.shields.io/badge/Python-3.11.7-blue)
   ![LICENSE MIT](https://img.shields.io/badge/license-MIT-green)
