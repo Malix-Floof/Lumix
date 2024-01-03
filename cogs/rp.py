@@ -1,6 +1,7 @@
-import disnake
-from disnake.ext import commands
 import aiohttp
+import disnake
+
+from disnake.ext import commands
 from db import SQLITE
 
 db = SQLITE("database.db")
