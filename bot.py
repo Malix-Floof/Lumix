@@ -46,7 +46,7 @@ class Lumix(commands.Bot):
 
     async def add_nodes(self):
         await self.wait_until_ready()
-        await self.pool.create_node(
+        self.node = await self.pool.create_node(
             host=lavalink['host'],
             port=lavalink['port'],
             label=lavalink['identifier'],
