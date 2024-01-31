@@ -60,10 +60,7 @@ class RolePlay(commands.Cog):
             ),
     ):
         try:
-            if text is not None:
-                rp = f"> **{inter.author.name}:** *{text}*\n\n"
-            if text is None:
-                rp = ""
+            rp = f"> **{inter.author.name}:** *{text}*\n\n" if text else ""
             """ Kiss """
             if emote == 'Поцеловать':
                 async with aiohttp.request("GET", "https://api.waifu.pics/sfw/kiss") as r:
