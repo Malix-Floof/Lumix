@@ -35,19 +35,15 @@ class RolePlay(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
-    async def on_ready(self):
-        print(f'[ ОК ] Запущен rp.py')
-
-    emote_list = ['Поцеловать', 'Обнять', 'Лизнуть', 'Устранить', 'Укусить', 'Прижаться', 'Ударить']
-
     @commands.slash_command(description=f"😜 RP | Взаимодействия с участниками")
     async def emote(
             self, inter,
             emote: str = commands.Param(
                 name="эмоция",
                 description="Выберите животного",
-                choices=emote_list
+                choices=['Поцеловать', 'Обнять', 'Лизнуть', 
+                         'Устранить', 'Укусить', 'Прижаться',
+                         'Ударить'],
             ),
             member: disnake.Member = commands.Param(
                 name="пользователь",
