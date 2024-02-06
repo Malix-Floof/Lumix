@@ -730,7 +730,7 @@ class Music(commands.Cog):
         if track and track.source:
             searchtype = source_links.get(track.source)
         if track.stream:
-            positionbar = f"<:1_:1083430189368877168>{TRACK_POSITION_EMBED_EMOJI * 10}<:224:1160530351505035357>"
+            positionbar = f"<:1_:1083430189368877168>{posEmoji * 10}<:224:1160530351505035357>"
             timed = "🔴 Трансляция"
             odur = ""
 
