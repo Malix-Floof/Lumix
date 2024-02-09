@@ -22,23 +22,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import disnake
+import random
 import aiohttp
-
-from disnake.ext import commands
+import disnake
 from db import SQLITE
+from disnake.ext import commands
 from googletrans import Translator
 
 db = SQLITE("database.db")
-animal_list = ['Лиса', 'Кошка', 'Собака', 'Птица', 'Коала', 'Кенгуру', 'Енот']
 
-async def translator(word, lang_server):
-    return Translator().translate(word, dest = lang_server)
+async def translator(word, lang):
+    return Translator().translate(word, dest=lang).text
 
 class ApiRequester(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.persistent_views_added = False
 
     API_URL = 'https://some-random-api.com/canvas/'
     CHOICES = {
@@ -67,7 +65,7 @@ class ApiRequester(commands.Cog):
         ):
         try:
             await inter.response.defer()
-            lang = await db.get(f"lang_{inter.guild.id}") or "ru"
+            lang = db.get(f"lang_{inter.guild.id}") or "ru"
             message = {
                 'ru': 'Результат:',
                 'en': 'Result:',
@@ -79,6 +77,7 @@ class ApiRequester(commands.Cog):
             embed.set_image(url=resp)
             await inter.send(embed=embed)
         except Exception as e:
+            
             message = {
                 'ru': {
                     'title': 'Что-то пошло не так...',
@@ -95,25 +94,28 @@ class ApiRequester(commands.Cog):
             }
             embed = disnake.Embed(
                 title=message[lang]['title'],
-                description=message[lang]['description'])
-            await inter.edit_original_message(embed=embed, color=0x2b2d31)
+                description=message[lang]['description'],
+                color=0x2b2d31)
+            await inter.edit_original_message(embed=embed)
 
 
-    @commands.slash_command(description="😀 Развлечения | Выводит рандомную фотографию выбраного животного")
+    @commands.slash_command(description="😀 Выводит рандомную фотографию выбраного животного")
     async def animal(
             self, inter, 
             animal: str = commands.Param(
                 name="животное", 
                 description="Выберите животного", 
-                choices={'Лиса': 'fox', 
-                         'Енот': 'raccoon', 
-                         'Кошка': 'cat', 
-                         'Собака':'dog',
-                         'Птица': 'bird',
-                         'Кенгуру': 'kangaroo',
-                         'Коала': 'koala'}
+                choices={
+                    'Лиса': 'fox', 
+                    'Енот': 'raccoon', 
+                    'Кошка': 'cat', 
+                    'Собака':'dog',
+                    'Птица': 'bird',
+                    'Кенгуру': 'kangaroo',
+                    'Коала': 'koala'
+                }
             )
-        ):
+        ) -> None:
         await inter.response.defer()
         lang = db.get(f"lang_{inter.guild.id}") or "ru"
         nfakt = {
@@ -125,6 +127,7 @@ class ApiRequester(commands.Cog):
             async with aiohttp.request("GET", f"https://some-random-api.com/animal/{animal}") as resp:
                 data = await resp.json()
             word = data['fact']
+            
             fact = await translator(word, lang)
             embed = disnake.Embed(description=f"**{nfakt}** {fact}", color=0x2b2d31)
             embed.set_image(url=data['image'])
@@ -144,9 +147,57 @@ class ApiRequester(commands.Cog):
                     'description': 'Виникла проблема під час надсилання запиту на сервер'
                 }
             }
-            embed = disnake.Embed(title=message[lang]['title'], description=message[lang]['description'])
-            await inter.send(embed=embed, color=0x2b2d31)
-
+            embed = disnake.Embed(
+                title=message[lang]['title'], 
+                description=message[lang]['description'],
+                color=0x2b2d31,
+            )
+            await inter.send(embed=embed)
+    
+    @commands.slash_command(
+        description="😀 Развлечения | Выводит рандомную картинку для взрослых (поиск на rule34)"
+    )
+    async def nsfw(self, inter: disnake.ApplicationCommandInteraction, tags: str = commands.Param(name="поиск", description="Укажите тег для поиска, например: boy"), 
+                   id: int = commands.Param(None, description="Укажите ID публикации (при неверном ID будет показана рандомная картинка)")
+                  ):
+        lang = db.get(f"lang_{inter.guild.id}") or "ru"
+        if not inter.channel.is_nsfw():
+            message = {
+                'ru': 'Данную команду можно использовать только в NSFW каналах!',
+                'en': 'This command can only be used in NSFW channels!',
+                'uk': 'Цю команду можна використовувати лише у NSFW каналах!'
+            }[lang]
+            embed = disnake.Embed(description=message, color=0x2b2d31)
+            return await inter.send(embed=embed, ephemeral=True)
+        
+        await inter.response.defer()
+        embed = disnake.Embed(color=0x2b2d31)
+        tags = await translator(tags, 'en')
+        if not id:
+            async with aiohttp.request("GET", f"https://api.rule34.xxx/index.php?page=dapi&s=post&q=index&limit=1000&tags={tags}&json=1") as resp:
+                data = await resp.json()
+        else:
+            async with aiohttp.request("GET", f"https://api.rule34.xxx/index.php?page=dapi&s=post&q=index&id={id}&json=1") as resp:
+                data = await resp.json()
+        if not data:
+            message = {
+                'ru': 'Результаты не найдены, попробуйте поискать с помощью таких тегов как:\n `cum penis anal gay`',
+                'en': 'No results found, try searching using tags such as:\n `cum penis anal gay`',
+                'uk': 'Результати не знайдені, спробуйте пошукати за допомогою таких тегів як:\n `cum penis anal gay`'
+            }[lang]
+            return await inter.send(
+                embed=disnake.Embed(
+                    description=message, 
+                    color=0x2b2d31
+                ), 
+                ephemeral=True
+            )
+        keyses = len(data) - 1
+        rand = random.randint(0, keyses)
+        embed.set_footer(text=f"ID: {data[rand]['id']}")
+        embed.set_image(url=data[rand]['file_url'])
+        await inter.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(ApiRequester(bot))
+
