@@ -410,7 +410,12 @@ class Moder(commands.Cog):
 	
     @unban.autocomplete("пользователь")
     async def autounban(self, inter: disnake.ApplicationCommandInteraction, string: str):
-        return [disnake.OptionChoice(name=f"{ban.user.name} ({ban.user.id})", value=str(ban.user.id)) async for ban in inter.guild.bans(limit=200)]
+        return [
+		disnake.OptionChoice(
+			name=f"{ban.user.name} ({ban.user.id})", 
+			value=str(ban.user.id)
+		) async for ban in inter.guild.bans(limit=25)
+	]
     
     @unban.error
     async def unban_error(self, inter: disnake.ApplicationCommandInteraction, error):
