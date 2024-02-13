@@ -337,7 +337,7 @@ class Moder(commands.Cog):
     @commands.bot_has_permissions(ban_members=True)
     @commands.has_permissions(ban_members=True)
     async def ban(self, inter: disnake.ApplicationCommandInteraction,
-        member: disnake.User = commands.Param(
+        member: disnake.Member = commands.Param(
             name='пользователь', 
             description="Пользователь для бана"), 
             reason: str = commands.Param("Отсутствует", name="причина", description="Причина бана")
