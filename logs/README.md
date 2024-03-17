@@ -1,0 +1,1 @@
+idk what the fuck that folder is for, but you can't run the bot without it.
