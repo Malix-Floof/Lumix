@@ -43,14 +43,14 @@ Set up private rooms with a user-friendly control panel
 ## 🔑 Installation
 ### Linux (Supported: Arch-Based, Fedora-Based and Debian-Based distributions)
 ```shell
-git clone https://github.com/MalixDev/Lumix
+git clone https://github.com/Malix-Floof/Lumix
 cd Lumix
 chmod +x ./start.sh
 ./start.sh
 ```
 ### Windows
 ```
-git clone https://github.com/MalixDev/Lumix
+git clone https://github.com/Malix-Floof/Lumix
 cd Lumix
 pip install -r requirements.txt
 ```
