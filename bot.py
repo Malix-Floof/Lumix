@@ -34,7 +34,7 @@ from config import settings, lavalink
 
 now = datetime.datetime.now()
 time = now.strftime("%H:%M:%S")
-logging.basicConfig(filename=f'./logs/log-{now.day}.{now.month}', encoding='utf-8', level=logging.INFO)
+logging.basicConfig(filename=f'./logs/log-{now.day}.{now.month}.log', encoding='utf-8', level=logging.INFO)
 logging.info(f"\n\n-------------------------(Запуск в {time} {now.day}.{now.month})-------------------------\n")
 
 
