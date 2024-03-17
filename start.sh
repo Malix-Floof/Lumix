@@ -36,7 +36,8 @@ else
                 python3 -m venv lenv
                 source lenv/bin/activate
                 if [[ -f "requirements.txt" ]]; then
-                    pip install -r requirements.txt
+                    echo "Rederecting 'pip install' STDOUT to /dev/null"
+                    pip install -r requirements.txt 1> /dev/null
                 else
                     echo "Error: requirements.txt not found. Please make sure the file exists."
                     exit 1
@@ -59,8 +60,10 @@ else
                 python3 -m venv lenv
                 source lenv/bin/activate
                 if [[ -f "requirements.txt" ]]; then
-                    pip install -r requirements.txt
+                    echo "Rederecting 'pip install' STDOUT to /dev/null"
+                    pip install -r requirements.txt 1> /dev/null
                 else
+                
                     echo "Error: requirements.txt not found. Please make sure the file exists."
                     exit 1
                 fi
@@ -82,7 +85,8 @@ else
                 python3 -m venv lenv
                 source lenv/bin/activate
                 if [[ -f "requirements.txt" ]]; then
-                    pip install -r requirements.txt
+                    echo "Rederecting 'pip install' STDOUT to /dev/null"
+                    pip install -r requirements.txt 1> /dev/null
                 else
                     echo "Error: requirements.txt not found. Please make sure the file exists."
                     exit 1
