@@ -19,12 +19,6 @@ if [ -e ./lenv ]; then
     echo -e "\033[32mVenv launched!\033[0m"
     echo "Launching bot..."
     python3 ./bot.py
-    exit_status=$?
-    if [ $exit_status -ne 0 ]; then
-        echo "Error: $exit_status"
-    else
-        echo -e "\033[32mBot launched!\033[0m"
-    fi
 else
     if command -v rpm &> /dev/null; then
         if rpm -q python3 &> /dev/null; then
