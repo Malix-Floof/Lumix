@@ -41,7 +41,7 @@ Set up private rooms with a user-friendly control panel
 🌟 This is just a part of the functionality that will be added over time.
 
 ## 🔑 Installation
-### Linux (Supported: Arch-Based, Fedora-Based and Debian-Based distributions
+### Linux (Supported: Arch-Based, Fedora-Based and Debian-Based distributions)
 ```shell
 git clone https://github.com/MalixDev/Lumix
 cd Lumix
