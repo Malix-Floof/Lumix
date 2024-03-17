@@ -36,8 +36,8 @@ else
                 python3 -m venv lenv
                 source lenv/bin/activate
                 if [[ -f "requirements.txt" ]]; then
-                    echo "Rederecting 'pip install' STDOUT to /dev/null"
-                    pip install -r requirements.txt 1> /dev/null
+                    pip install -r requirements.txt
+		            pip install git+https://github.com/DisnakeCommunity/disnake-ext-components.git
                 else
                     echo "Error: requirements.txt not found. Please make sure the file exists."
                     exit 1
@@ -60,8 +60,8 @@ else
                 python3 -m venv lenv
                 source lenv/bin/activate
                 if [[ -f "requirements.txt" ]]; then
-                    echo "Rederecting 'pip install' STDOUT to /dev/null"
-                    pip install -r requirements.txt 1> /dev/null
+                    pip install -r requirements.txt
+		            pip install git+https://github.com/DisnakeCommunity/disnake-ext-components.git
                 else
                 
                     echo "Error: requirements.txt not found. Please make sure the file exists."
@@ -85,8 +85,8 @@ else
                 python3 -m venv lenv
                 source lenv/bin/activate
                 if [[ -f "requirements.txt" ]]; then
-                    echo "Rederecting 'pip install' STDOUT to /dev/null"
-                    pip install -r requirements.txt 1> /dev/null
+                    pip install -r requirements.txt
+		            pip install git+https://github.com/DisnakeCommunity/disnake-ext-components.git
                 else
                     echo "Error: requirements.txt not found. Please make sure the file exists."
                     exit 1

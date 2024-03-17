@@ -5,3 +5,4 @@ humanize
 requests
 gtts==2.3.1
 googletrans==3.1.0a0
+mafic
