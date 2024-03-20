@@ -34,7 +34,6 @@ else
                 source lenv/bin/activate
                 if [[ -f "requirements.txt" ]]; then
                     pip install -r requirements.txt
-                    pip install git+https://github.com/DisnakeCommunity/disnake-ext-components.git
                 else
                     echo -e "\033[31mError: requirements.txt not found. Please make sure the file exists."
                     exit 1
@@ -59,7 +58,6 @@ else
                 source lenv/bin/activate
                 if [[ -f "requirements.txt" ]]; then
                     pip install -r requirements.txt
-                    pip install git+https://github.com/DisnakeCommunity/disnake-ext-components.git
                 else
                 
                     echo -e "\033[31mError: requirements.txt not found. Please make sure the file exists."
@@ -85,7 +83,6 @@ else
                 source lenv/bin/activate
                 if [[ -f "requirements.txt" ]]; then
                     pip install -r requirements.txt
-                    pip install git+https://github.com/DisnakeCommunity/disnake-ext-components.git
                 else
                     echo -e "\033[31mError: requirements.txt not found. Please make sure the file exists."
                     exit 1
