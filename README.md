@@ -54,6 +54,12 @@ git clone https://github.com/Malix-Floof/Lumix
 cd Lumix
 pip install -r requirements.txt
 ```
+### Docker
+```
+git clone https://github.com/Malix-Floof/Lumix
+cd Lumix
+docker build -t lumix .
+```
 ___
 
 
@@ -71,4 +77,8 @@ ___
 ### Windows
 ```
 python bot.py
+```
+### Docker
+```
+docker run lumix
 ```
