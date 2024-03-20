@@ -1,5 +1,6 @@
 aiohttp
 disnake
+git+https://github.com/DisnakeCommunity/disnake-ext-components
 psutil
 humanize
 requests
