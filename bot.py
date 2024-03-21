@@ -61,7 +61,7 @@ bot = Lumix(
 
 @bot.event
 async def on_ready():
-    print("Ready!")
+    print("Bot launched!")
     
 bot.load_extensions("cogs")
 bot.run(settings['token'])

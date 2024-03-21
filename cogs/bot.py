@@ -39,10 +39,6 @@ class Information(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
-    async def on_ready(self):
-        print("bot.py is ready")
-
     @commands.slash_command(description="📌 Показывает статистику бота")
     async def bot(self, inter):
         await inter.response.defer()

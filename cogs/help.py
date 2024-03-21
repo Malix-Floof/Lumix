@@ -236,4 +236,3 @@ class CogHelp(commands.Cog):
 
 def setup(bot):
     bot.add_cog(CogHelp(bot))
-    print(f"[ OK ] help.py is ready")
