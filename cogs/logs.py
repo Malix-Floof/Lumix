@@ -217,6 +217,17 @@ class Logs(commands.Cog):
         if channel is None:
             return
         
+        
+        if before.nick is None:
+            if lang_server == 'ru':
+                embed = disnake.Embed(description=f"Никнейм пользователя `{after.nick}` был обновлён", timestamp=datetime.datetime.now(), color=0x2b2d31)
+                embed.add_field(name='Установлен ник: ',value=f'```\n{after.nick}\n```', inline=False)
+            if lang_server == 'en':
+                embed = disnake.Embed(description=f"Nickname of user `{after.nick}` has been updated", timestamp=datetime.datetime.now(), color=0x2b2d31)
+                embed.add_field(name='Nickname is set: ',value=f'```\n{after.nick}\n```', inline=False)
+            if lang_server == 'uk':
+                embed = disnake.Embed(description=f"Нікнейм користувача `{after.nick}` було оновлено", timestamp=datetime.datetime.now(), color=0x2b2d31)
+                embed.add_field(name='Нік встановлено: ',value=f'```\n{after.nick}\n```', inline=False)
         if before.nick != after.nick:
             if lang_server == 'ru':
                 embed = disnake.Embed(description=f"Никнейм пользователя `{after.nick}` был обновлён", timestamp=datetime.datetime.now(), color=0x2b2d31)
