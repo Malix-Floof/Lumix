@@ -12,7 +12,7 @@
 
 
   ![disnake.py](https://img.shields.io/badge/disnake-py-blue.svg)
-  ![python](https://img.shields.io/badge/Python-3.11.7-blue)
+  ![python](https://img.shields.io/badge/Python-3.11.7-3.11.8-blue)
   ![LICENSE MIT](https://img.shields.io/badge/license-MIT-green)
   ![Discord server](https://discord.com/api/guilds/1019681172940390430/widget.png)
 </h4>
