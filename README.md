@@ -1,7 +1,7 @@
 <p align="light">
 <h1 align="center">
   <br>
-  <a><img src="https://github.com/Malix-Floof/Lumix/assets/101697781/d764596a-023c-44ca-8e57-85990f1fc2e7" alt=" ✨ Lumix"></a>
+  <a><img src="https://media.discordapp.net/attachments/1052589926119641098/1221170136686268476/image.png?ex=66119a50&is=65ff2550&hm=5dfb1ab575c7bb9dfc41a5bdce129882c0d870d460abf7f7a1805dbffac1a4d4&=&format=webp&quality=lossless&width=1440&height=479" alt=" ✨ Lumix"></a>
   <br>
    ✨ Lumix
   <br>
