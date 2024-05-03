@@ -24,7 +24,7 @@ SOFTWARE.
 
 import disnake
 import re
-from random import choice
+from random import choice, randint
 from disnake.ext import commands
 from datetime import *
 from db import SQLITE
@@ -175,6 +175,9 @@ class Moder(commands.Cog):
             embed.add_field(name="Модератор:", value=f"{inter.author.mention}", inline=True)
             embed.add_field(name="Причина:", value=f"`{reason[:50]}`", inline=True)
             embed.set_thumbnail(url=member.display_avatar.url)
+            if randint(1,10) == 1:
+                embed.set_image(url='https://media1.tenor.com/m/u3qFV6qjvQIAAAAd/%D1%82%D1%8B-%D0%B2-%D0%BC%D1%83%D1%82%D0%B5-muted.gif')
+
         await inter.send(embed=embed)
 
     @mute.error
