@@ -1,7 +1,7 @@
 <p align="light">
 <h1 align="center">
   <br>
-  <a><img src="https://media.discordapp.net/attachments/1052589926119641098/1221170136686268476/image.png?ex=66119a50&is=65ff2550&hm=5dfb1ab575c7bb9dfc41a5bdce129882c0d870d460abf7f7a1805dbffac1a4d4&=&format=webp&quality=lossless&width=1440&height=479" alt=" ✨ Lumix"></a>
+  <a><img src="https://i.ibb.co/jGFgRC0/Lumix-CC-1.png" style="width: 100%;" alt=" ✨ Lumix"></a>
   <br>
    ✨ Lumix
   <br>
@@ -12,7 +12,7 @@
 
 
   ![disnake.py](https://img.shields.io/badge/disnake-py-blue.svg)
-  ![python](https://img.shields.io/badge/Python-3.11.7-3.11.8-blue)
+  ![Python](https://img.shields.io/badge/Python-3.11.7%20%E2%80%94%203.11.9-blue)
   ![LICENSE MIT](https://img.shields.io/badge/license-MIT-green)
   ![Discord server](https://discord.com/api/guilds/1019681172940390430/widget.png)
 </h4>
