@@ -1,9 +1,8 @@
+mafic
 aiohttp
 disnake
-git+https://github.com/DisnakeCommunity/disnake-ext-components
 psutil
 humanize
 requests
 gtts==2.3.1
 googletrans==3.1.0a0
-mafic
