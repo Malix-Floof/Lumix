@@ -686,8 +686,7 @@ class Music(commands.Cog):
         if not player:
             return await inter.send("Музыка сейчас не играет", ephemeral=True)
         
-        await player.controller.edit(view=None)
-        await player.destroy()
+        await self.destroy(player)
         await inter.send("Плеер был остановлен")
 
     @commands.slash_command(description="🎶 Настройка громкости")
