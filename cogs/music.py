@@ -200,17 +200,6 @@ class Player(mafic.Player):
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
-    #async def controller_create(self, player: Player) -> None:
-    #    try:
-    #        channel = player.controller.channel
-    #        await player.controller.delete()
-    #        player.controller = await channel.send(
-    #            embed=await self.playerMessage(player), view=MusicButtons()
-    #        )
-    #        player.controller_id = player.controller.id
-    #    except:
-    #        ...
 
     async def destroy(self, player: Player):
         if player.controller is None:
@@ -223,19 +212,16 @@ class Music(commands.Cog):
 
         if player.loop_mode == 'track':
             await player.play(player.queue[0])
-            #await self.controller_create(player)
             return
 
         if player.loop_mode == 'queue':
             player.index = (player.index + 1) % len(player.queue)
             await player.play(player.queue[player.index])
-            #await self.controller_create(player)
             return
 
         player.queue.pop(0)
         if player.queue:
             await player.play(player.queue[0])
-            #await self.controller_create(player)
             return
     
         await player.controller.edit(view=None)
@@ -699,6 +685,8 @@ class Music(commands.Cog):
         player = inter.guild.voice_client
         if not player:
             return await inter.send("Музыка сейчас не играет", ephemeral=True)
+        
+        await player.controller.edit(view=None)
         await player.destroy()
         await inter.send("Плеер был остановлен")
 
