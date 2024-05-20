@@ -326,15 +326,20 @@ class Music(commands.Cog):
 
         if inter.data['custom_id'] == 'pause:2':
             if await self.cheks(inter, player):
-                buttons = [1, 3, 4, 5, 6, 7, 8, 9, 10]
-                dbuttons = True if player.paused else False
-                emoji = emojis['playEmoji'] if player.paused else emojis['pauseEmoji']
-                style = disnake.ButtonStyle.blurple if player.paused else disnake.ButtonStyle.gray
-
-                for button in buttons:
-                    view.children[button].disabled = dbuttons
-                    view.children[2].emoji = emoji
-                    view.children[2].style = style
+                disable_buttons = [1, 3, 4, 5, 6, 7, 8, 9, 10]
+                if player.paused:
+                    for button in disable_buttons:
+                        view.children[button].disabled = False
+                    view.children[2].emoji = emojis['pauseEmoji']
+                    view.children[2].style = disnake.ButtonStyle.gray
+                    await player.resume()
+                    self.update_embed(player)
+                else:
+                    for button in disable_buttons:
+                        view.children[button].disabled = True
+                    view.children[2].emoji = emojis['playEmoji']
+                    view.children[2].style = disnake.ButtonStyle.blurple
+                    await player.pause()
 
                 if player.is_looping:
                     view.children[8].emoji = emojis['onLoopMode']
@@ -342,12 +347,6 @@ class Music(commands.Cog):
 
                 if player.effect is True:
                     view.children[9].style = disnake.ButtonStyle.red
-
-                if player.paused:
-                    await player.resume()
-                    await self.update_embed(player)
-                else:
-                    await player.pause()
 
                 await player.controller.edit(view=view)
 
