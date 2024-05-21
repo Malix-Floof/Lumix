@@ -333,7 +333,7 @@ class Music(commands.Cog):
                     view.children[2].emoji = emojis['pauseEmoji']
                     view.children[2].style = disnake.ButtonStyle.gray
                     await player.resume()
-                    self.update_embed(player)
+                    await self.update_embed(player)
                 else:
                     for button in disable_buttons:
                         view.children[button].disabled = True
