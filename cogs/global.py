@@ -141,20 +141,15 @@ class Main(commands.Cog):
         description="🔧 Утилиты | Рандомное число",
         dm_permission=False
     )
-    async def random(self, inter, ot: int = commands.Param(name="от", description="Введите число"), do: int = commands.Param(name="до", description="Введите число")):
-        lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
-        messages = {
-            "ru": "Ваше число: {number}",
-            "en": "Your number: {number}",
-            "uk": "Ваше число: {number}"
-        }
-
-        try:
-            message = messages.get(lang_server, messages["ru"])
-            await inter.send(message.format(number=randint(ot, do)))
-        except ValueError:
-            message = messages.get(lang_server, messages["ru"])
-            await inter.send(message.format(number=randint(do, ot)))
+    async def random(self, inter, start: int = commands.Param(name="от", description="Введите число"), end: int = commands.Param(name="до", description="Введите число")):
+        lang = db.get(f"lang_{inter.guild.id}") or "ru"
+        number = randint(min(start, end), max(start, end))
+        message = {
+            "ru": f"Ваше число: {number}",
+            "en": f"Your number: {number}",
+            "uk": f"Ваше число: {number}"
+        }[lang]
+        await inter.send(message)
 
     @commands.slash_command(
         description="😀 Развлечения | Добавить репутацию пользователю",
