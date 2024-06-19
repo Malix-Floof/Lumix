@@ -100,6 +100,9 @@ class Moder(commands.Cog):
         if member.id == inter.guild.owner.id:
             return await inter.send(choice(joke), ephemeral=True)
 
+	if member.id == inter.author.id:    # защита от гениев
+	    return await inter.send('Ну, замьютить самого себя это классно, конечно, но я пожалуй не стану этого делать.', ephemeral=True)
+
         if member.current_timeout:
             timestipo = datetime.strptime(f"{member.current_timeout}", "%Y-%m-%d %H:%M:%S.%f%z").timestamp()
             message = {
