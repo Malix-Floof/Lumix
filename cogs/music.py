@@ -192,6 +192,9 @@ class Player(mafic.Player):
         self.index: int = 0
         self.effect: bool = False
 
+    async def connect(self, self_deaf=True, *args, **kwargs):
+        await super().connect(self_deaf=self_deaf, *args, **kwargs)
+
     async def queue_type(self, value):
         self.loop_mode = value
         self.is_looping = value in ('track', 'queue')
@@ -525,20 +528,21 @@ class Music(commands.Cog):
         lang_server = db.get(f"lang_{inter.guild.id}") or "ru"
         try:
             if not inter.author.voice:
-                return await inter.edit_original_response("Вы должны присоединиться к голосовому каналу, чтобы начать прослушивание музыки!")
-            if not inter.guild.voice_client:
-                player = await inter.user.voice.channel.connect(cls=Player)
-            else:
+                await inter.edit_original_response(
+                    "Вы должны присоединиться к голосовому каналу, чтобы начать прослушивание музыки!"
+                )
+                return
+            
+            if inter.guild.voice_client:
                 player: Player = inter.guild.voice_client
+            else:
+                player = await inter.user.voice.channel.connect(cls=Player)
 
-            service_blacklist = ["www.youtube.com", "youtu.be", "twitch.tv"]
+            service_blacklist = {"www.youtube.com", "youtu.be", "twitch.tv"}
             if any(service in search for service in service_blacklist):
                 return await inter.edit_original_response("Данный сервис не поддерживается, используйте другой!")
 
             voice_state = inter.author.voice.channel.id
-            voice_channel = getattr(inter.user.voice, 'channel', inter.guild.voice_client)
-            await inter.guild.change_voice_state(channel=voice_channel, self_deaf=True)
-
             if inter.guild.voice_client:
                 voice_client = inter.guild.voice_client.channel.id
                 if voice_state != voice_client:
@@ -549,11 +553,13 @@ class Music(commands.Cog):
 
             tracks = await player.fetch_tracks(search, mafic.SearchType.SOUNDCLOUD)
             if not tracks:
-                return await inter.edit_original_response("Трек по вашему запросу не найден")
+                await inter.edit_original_response(
+                    "Трек по вашему запросу не найден"
+                )
+                return
 
             if isinstance(tracks, mafic.Playlist):
-                for track in tracks.tracks:
-                    player.queue.append(track)
+                player.queue.extend(track.tracks)
 
                 if player.current:
                     message_controller_id = player.controller_id
@@ -592,7 +598,6 @@ class Music(commands.Cog):
                     await self.update_embed(player)
 
             else:
-                tracks = await player.fetch_tracks(search, mafic.SearchType.SOUNDCLOUD)
                 track = tracks[0]
                 if player.current:
                     try:
@@ -601,7 +606,7 @@ class Music(commands.Cog):
                     except (disnake.NotFound, disnake.Forbidden):
                         try:
                             message = self.bot.get_message(int(player.controller_id))
-                            if message is not None:
+                            if message:
                                 await message.delete()
                         except (disnake.NotFound, disnake.Forbidden):
                             ...
