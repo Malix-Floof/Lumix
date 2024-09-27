@@ -185,12 +185,11 @@ class Player(mafic.Player):
         self.djs: List[disnake.Member] = []
         self.pages: List[disnake.Embed] = []
         self.controller: disnake.Message = None
-        self.controller_id: int = 0 
         self.is_looping: bool = False
         self.loop_mode: str = None
         self.volume: int = 100
-        self.index: int = 0
         self.effect: bool = False
+        self.update_bool: bool = False
 
     async def connect(self, self_deaf=True, *args, **kwargs):
         await super().connect(self_deaf=self_deaf, *args, **kwargs)
@@ -205,22 +204,19 @@ class Music(commands.Cog):
         self.bot = bot
 
     async def destroy(self, player: Player):
-        if player.controller is None:
-            await player.destroy()
-            return
-        
         if not player.queue:
             await player.controller.edit(view=None)
-            return await player.destroy()
+            return await player.disconnect()
 
         if player.loop_mode == 'track':
             await player.play(player.queue[0])
             return
 
         if player.loop_mode == 'queue':
-            player.index = (player.index + 1) % len(player.queue)
-            await player.play(player.queue[player.index])
-            return
+            track = player.queue[0]
+            player.queue.remove(track)
+            player.queue.append(track)
+            return await player.play(player.queue[0])
 
         player.queue.pop(0)
         if player.queue:
@@ -228,7 +224,7 @@ class Music(commands.Cog):
             return
     
         await player.controller.edit(view=None)
-        await player.destroy()
+        await player.disconnect()
     
     @commands.Cog.listener("on_track_exception")
     @commands.Cog.listener("on_track_end")
@@ -253,7 +249,7 @@ class Music(commands.Cog):
 
         elif before.channel is not None and after.channel is None:
             if member.id in player.djs:
-                player.djs.pop(member.id)
+                player.djs.remove(member.id)
 
     async def cheks(self, inter, player):
         if not inter.user.voice:
@@ -363,7 +359,7 @@ class Music(commands.Cog):
                 await inter.followup.send(message, delete_after=5)
 
         if inter.data['custom_id'] == 'playlist:4':
-            durations = sum([track.length / 1000 for track in player.queue])
+            durations = sum([track.length for track in player.queue]) / 1000
             hours, remainder = divmod(durations, 3600)
             qsize = len(player.queue)
             description = None
@@ -518,7 +514,7 @@ class Music(commands.Cog):
     )
     async def play(
         self,
-        inter: disnake.AppCmdInter,
+        inter,
         search: str = commands.Param(
             name="название",
             description="название трека"
@@ -542,38 +538,21 @@ class Music(commands.Cog):
             if any(service in search for service in service_blacklist):
                 return await inter.edit_original_response("Данный сервис не поддерживается, используйте другой!")
 
-            voice_state = inter.author.voice.channel.id
-            if inter.guild.voice_client:
-                voice_client = inter.guild.voice_client.channel.id
-                if voice_state != voice_client:
-                    await inter.send(
-                        f"Я уже играю музыку в канале {inter.guild.voice_client.channel.mention}!",
-                    )
-                    return
+            if inter.guild.voice_client and inter.author.voice.channel.id != inter.guild.voice_client.channel.id:
+                return await inter.edit_original_response(
+                    f"Я уже играю музыку в канале {inter.guild.voice_client.channel.mention}!",
+                )
 
             tracks = await player.fetch_tracks(search, mafic.SearchType.SOUNDCLOUD)
             if not tracks:
-                await inter.edit_original_response(
+                return await inter.edit_original_response(
                     "Трек по вашему запросу не найден"
                 )
-                return
 
             if isinstance(tracks, mafic.Playlist):
                 player.queue.extend(track.tracks)
-
+                
                 if player.current:
-                    message_controller_id = player.controller_id
-                    try:
-                        await inter.channel.fetch_message(int(message_controller_id))
-                        await inter.delete_original_response(delay=6)
-                    except (disnake.NotFound, disnake.Forbidden):
-                        try:
-                            message = self.bot.get_message(int(message_controller_id))
-                            if message is not None:
-                                await message.delete()
-                        except (disnake.NotFound, disnake.Forbidden):
-                            ...
-
                     embed = disnake.Embed(
                         description=f"Плейлист `{tracks.name}` добавлен в очередь! (`{len(tracks.tracks)} Треков`)",
                         color=0x2b2d31
@@ -582,64 +561,40 @@ class Music(commands.Cog):
                         name=f"{inter.user.name} Добавляет плейлист в очередь",
                         icon_url=inter.author.display_avatar
                     )
-                    return await inter.send(embed=embed, delete_after=5)
+                    await inter.edit_original_response(embed=embed, delete_after=5)
                 else:
-                    try:
-                        await inter.channel.fetch_message(player.controller_id)
-                        await player.controller.edit(embed=await self.playerMessage(player))
-                    except:
-                        await player.play(player.queue[0])
-                        player.controller = await inter.edit_original_response(
-                            embed=await self.playerMessage(player), 
-                            view=MusicButtons()
-                        )
-                        player.controller_id = player.controller.id
-
-                    await self.update_embed(player)
-
+                    await player.play(player.queue[0])
+                    player.controller = await inter.edit_original_response(
+                        embed=await self.playerMessage(player), 
+                        view=MusicButtons()
+                    )
             else:
                 track = tracks[0]
+                player.queue.append(track)
                 if player.current:
-                    try:
-                        await inter.channel.fetch_message(int(player.controller_id))
-                        await inter.delete_original_response(delay=6)
-                    except (disnake.NotFound, disnake.Forbidden):
-                        try:
-                            message = self.bot.get_message(int(player.controller_id))
-                            if message:
-                                await message.delete()
-                        except (disnake.NotFound, disnake.Forbidden):
-                            ...
-                    player.queue.append(track)
                     message = {
                         'ru': f'Трек под названием **{track.title}** (`{int(track.length / 1000 / 60)}:{str(track.length / 1000)[:2]}`) был добавлен в очередь',
                         'en': f'The track called **{track.title}** (`{int(track.length / 1000 / 60)}:{str(track.length / 1000)[:2]}`) has been added to the queue',
                         'uk': f'Трек під назвою **{track.title}** (`{int(track.length / 1000 / 60)}:{str(track.length / 1000)[:2]}`) додано до черги'
                     }[lang_server]
+                    
                     embed = disnake.Embed(
                         description=message,
                         color=0x2b2d31
-                    )
-                    embed.set_author(
+                    ).set_author(
                         name=f"{inter.user.name} Добавляет трек в очередь",
                         icon_url=inter.author.display_avatar
-                    )
-                    embed.set_thumbnail(url=track.artwork_url)
-                    await inter.edit_original_response(embed=embed, components=[])
+                    ).set_thumbnail(url=track.artwork_url)
+                    await inter.edit_original_response(embed=embed)
                 else:
-                    player.queue.append(track)
                     await player.play(track)
+                    player.controller = await inter.edit_original_response(
+                        embed=await self.playerMessage(player), view=MusicButtons()
+                    )
 
-                    try:
-                        await inter.channel.fetch_message(int(player.controller_id))
-                        await player.controller.edit(embed=await self.playerMessage(player))
-                    except:
-                        player.controller = await inter.edit_original_response(
-                            embed=await self.playerMessage(player), view=MusicButtons()
-                        )
-                        player.controller_id = player.controller.id
-
-                    await self.update_embed(player)
+            if not player.update_bool:
+                player.update_bool = True
+                return await self.update_embed(player)
         
         except mafic.NoNodesAvailable as e:
             message = {
@@ -657,48 +612,32 @@ class Music(commands.Cog):
                 'uk': 'Невідомий формат треку. Будь ласка, надайте посилання на трек у Soundcloud або введіть назву треку'
             }[lang_server]
             await inter.edit_original_response(message)
-
-    async def search(self, query, searchtype = 'scsearch') -> None:
-        url = f"http://{lavalink['host']}:{lavalink['port']}/v4/loadtracks"
-        params = {'identifier': f'{searchtype}:{query}'}
-        headers = {
-            'Authorization': lavalink['password'],
-            'Accept': 'application/json'
-        }
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers, params=params) as response:
-                tracks = []
-                if response.status == 200:
-                    data = await response.json()
-                    for item in data['data']:
-                        tracks.append(disnake.OptionChoice(name=f"{item['info']['title']}", value=item['info']['uri'][:100]))
-
-                return tracks
             
     @play.autocomplete("название")
     async def autoplay(self, inter: disnake.AppCmdInter, string: str):
         if not string:
             return []
             
-        return await self.search(string)
+        tracks = await self.bot.node.fetch_tracks(string, search_type="scsearch")
+        return [track.title for track in tracks]
 
     @commands.slash_command(description="🎶 Остановить плеер")
-    async def stop(self, inter: disnake.AppCmdInter) -> None:
+    async def stop(self, inter):
         await inter.response.defer()
         player = inter.guild.voice_client
         if not player:
-            return await inter.send("Музыка сейчас не играет", ephemeral=True)
+            return await inter.edit_original_response("Музыка сейчас не играет", ephemeral=True)
         
         await self.destroy(player)
-        await inter.send("Плеер был остановлен")
+        await inter.edit_original_response("Плеер был остановлен")
 
     @commands.slash_command(description="🎶 Настройка громкости")
     async def volume(
-        self, inter: disnake.AppCmdInter, 
+        self, inter, 
         volume: commands.Range[int, 0, 200] = commands.Param(
             name="громкость",
             description="Вы можете установить громкость в диапозоне от 0 до 200"
-    )) -> None:
+    )):
         await inter.response.defer()
         lang = db.get(f"lang_{inter.guild.id}") or "ru"
         player = inter.guild.voice_client
@@ -708,7 +647,7 @@ class Music(commands.Cog):
                 'en': 'Music is not playing now',
                 'uk': 'Музика зараз не грає'
             }[lang]
-            return await inter.send(message, ephemeral=True)
+            return await inter.edit_original_response(message, ephemeral=True)
 
         if inter.author.voice is None or inter.author.voice.channel is None:
             message = {
@@ -716,7 +655,7 @@ class Music(commands.Cog):
                 'en': 'You must be in a voice channel to use this command!',
                 'uk': 'Ви повинні знаходитися в голосовому каналі, щоб використовувати цю команду!'
             }[lang]
-            return await inter.send(message, ephemeral=True)
+            return await inter.edit_original_response(message, ephemeral=True)
 
         await player.set_volume(volume)
         player.volume = volume
@@ -726,7 +665,7 @@ class Music(commands.Cog):
             'uk': f'Гучність плеєра встановлена на {volume}%'
         }[lang]
         await self.volume_blocked(player)
-        await inter.send(message, ephemeral=True)
+        await inter.edit_original_response(message, ephemeral=True)
 
     async def update_embed(self, player):
         while not player.paused and player.current:
@@ -762,9 +701,7 @@ class Music(commands.Cog):
             "bandcamp": "https://cdn.discordapp.com/attachments/1151406452611751936/1182206326999363635/92-920204_bandcamp-logo-circle.png?ex=6583da70&is=65716570&hm=32c3bc7517ef2b281d5dcf0b4f00fbfec9181307d934237fbf20dd3e0f116635&",
             "yandexmusic": "https://cdn.discordapp.com/attachments/1151406452611751936/1181647289471729664/52c887278299.png?ex=6581d1cb&is=656f5ccb&hm=4dbe41f30879aa6c9133c42f0d23432bef3e36274dfa4b4012dc4bb6aea51eb8&",
         }
-        searchtype = None
-        if track and track.source:
-            searchtype = source_links.get(track.source)
+        searchtype = source_links.get(track.source) if track and track.source else None
         if track.stream:
             positionbar = f"<:1_:1083430189368877168>{posEmoji * 10}<:224:1160530351505035357>"
             timed = "🔴 Трансляция"
@@ -787,16 +724,17 @@ class Music(commands.Cog):
                 positionbar = f"<:1_:1083430189368877168>{posEmoji * pos}{leftEmoji * (7 - pos)}<:2_:1083430191944171521>"
 
         if lang_server == 'ru':
-            days = dur // (24 * 3600)
-            hours = (dur % (24 * 3600)) // 3600
-            minutes = (dur % 3600) // 60
-            durations_track = ""
-            if days > 0:
-                durations_track += f"{int(days)} дн. "
-            if hours > 0:
-                durations_track += f"{int(hours)} ч. "
-            if minutes > 0:
-                durations_track += f"{int(minutes)} мин."
+            if not track.stream:
+                days = dur // (24 * 3600)
+                hours = (dur % (24 * 3600)) // 3600
+                minutes = (dur % 3600) // 60
+                durations_track = ""
+                if days > 0:
+                    durations_track += f"{int(days)} дн. "
+                if hours > 0:
+                    durations_track += f"{int(hours)} ч. "
+                if minutes > 0:
+                    durations_track += f"{int(minutes)} мин."
                 
             embed.set_author(
                 name=f"Сейчас играет: {player.current.title}",
