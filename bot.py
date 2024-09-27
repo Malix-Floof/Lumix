@@ -23,45 +23,33 @@ SOFTWARE.
 """
 
 import disnake
-import mafic
 import logging
 import datetime
 
 from disnake.ext import commands
-from os import listdir
-from config import settings, lavalink
-
 
 now = datetime.datetime.now()
 time = now.strftime("%H:%M:%S")
-logging.basicConfig(filename=f'./logs/log-{now.day}.{now.month}.log', encoding='utf-8', level=logging.INFO)
-logging.info(f"\n\n-------------------------(Запуск в {time} {now.day}.{now.month})-------------------------\n")
+logging.basicConfig(filename='./logs/discord.log', encoding='utf-8', level=logging.INFO)
+logging.info(f"\n\n{'-' * 25}(Запуск в {time} {now.day}.{now.month}){'-' * 25}\n")
 
 
-class Lumix(commands.Bot):
-    def __init__(self, *args,  **kwargs):
-        super().__init__(*args, **kwargs)
-        self.pool = mafic.NodePool(self)
-        self.loop.create_task(self.add_nodes())
-
-    async def add_nodes(self):
-        await self.wait_until_ready()
-        self.node = await self.pool.create_node(
-            host=lavalink['host'],
-            port=lavalink['port'],
-            label=lavalink['identifier'],
-            password=lavalink['password'],
+class Lumix(commands.AutoShardedBot):
+    def __init__(self):
+        super().__init__(
+            command_prefix='l.', 
+            intents=disnake.Intents.all(), 
+            owner_ids=settings['owner_id'],
+            help_command=None,
+            allowed_mentions=disnake.AllowedMentions.none(),
+            activity=disnake.Activity(
+                type=disnake.ActivityType.custom,
+                name='👀 Салют! Я Люма!',
+                state='👀 Салют! Я Люма!'
+            ),
         )
+        self.session = aiohttp.ClientSession(loop=self.loop)
 
-bot = Lumix(
-    command_prefix="l.", 
-    intents=disnake.Intents.all(), 
-    help_command=None,
-)
-
-@bot.event
-async def on_ready():
-    print("Bot launched!")
-    
+bot = Lumix()
 bot.load_extensions("cogs")
 bot.run(settings['token'])
