@@ -202,6 +202,19 @@ class Player(mafic.Player):
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.pool = mafic.NodePool(self.bot)
+        self.bot.music_node_connected = False
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await self.bot.wait_until_ready()
+        if not self.bot.music_node_connected:
+            self.bot.node = await self.pool.create_node(
+                host=lavalink['host'],
+                port=lavalink['port'],
+                label=lavalink['identifier'],
+                password=lavalink['password'],
+            )
 
     async def destroy(self, player: Player):
         if not player.queue:
