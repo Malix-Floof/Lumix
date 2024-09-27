@@ -41,8 +41,18 @@ class CogUtils(commands.Cog):
         autorole = db.get(f"autorole_{member.guild.id}")
         if autorole is None:
             return
-        role = disnake.utils.get(member.guild.roles, id=int(autorole))
-        await member.add_roles(role)
+            
+        roles = [
+            disnake.utils.get(member.guild.roles, id=int(role)) 
+            for role in json.loads(str(autorole)) 
+            if disnake.utils.get(member.guild.roles, id=int(role))
+        ]
+
+        if roles:
+            try:
+                await member.add_roles(*roles)
+            except:
+                ...
 
     @commands.slash_command(description="Установить автороли на сервер!")
     @commands.has_permissions(administrator=True)
