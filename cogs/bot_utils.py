@@ -38,6 +38,9 @@ class CogUtils(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
+        if member.bot:
+            return
+            
         autorole = db.get(f"autorole_{member.guild.id}")
         if autorole is None:
             return
