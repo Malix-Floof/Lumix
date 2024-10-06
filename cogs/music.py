@@ -210,6 +210,7 @@ class Music(commands.Cog):
         await self.bot.wait_until_ready()
         if not self.bot.music_node_connected:
             self.bot.node = await self.pool.create_node(
+                session=self.bot.session,
                 host=lavalink['host'],
                 port=lavalink['port'],
                 label=lavalink['identifier'],
