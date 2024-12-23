@@ -1,7 +1,7 @@
 <p align="light">
 <h1 align="center">
   <br>
-  <a><img src="https://i.ibb.co/jGFgRC0/Lumix-CC-1.png" style="width: 100%;" alt=" ✨ Lumix"></a>
+  <a><img src="https://github.com/user-attachments/assets/b3b0f0a0-6456-4bc3-8376-6a31da3ebe34" style="width: 100%;" alt=" ✨ Lumix"></a>
   <br>
    ✨ Lumix
   <br>
