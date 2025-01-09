@@ -543,11 +543,7 @@ class Music(commands.Cog):
                 )
                 return
             
-            if inter.guild.voice_client:
-                player: Player = inter.guild.voice_client
-            else:
-                player = await inter.user.voice.channel.connect(cls=Player)
-
+            player = inter.guild.voice_client or await inter.user.voice.channel.connect(cls=Player)
             service_blacklist = {"www.youtube.com", "youtu.be", "twitch.tv"}
             if any(service in search for service in service_blacklist):
                 return await inter.edit_original_response("Данный сервис не поддерживается, используйте другой!")
