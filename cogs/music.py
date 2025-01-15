@@ -373,7 +373,7 @@ class Music(commands.Cog):
                 await inter.followup.send(message, delete_after=5)
 
         if inter.data['custom_id'] == 'playlist:4':
-            durations = sum([track.length for track in player.queue]) / 1000
+            durations = sum(track.length for track in player.queue) / 1000
             hours, remainder = divmod(durations, 3600)
             qsize = len(player.queue)
             description = None
@@ -583,9 +583,9 @@ class Music(commands.Cog):
                 player.queue.append(track)
                 if player.current:
                     message = {
-                        'ru': f'Трек под названием **{track.title}** (`{int(track.length / 1000 / 60)}:{str(track.length / 1000)[:2]}`) был добавлен в очередь',
-                        'en': f'The track called **{track.title}** (`{int(track.length / 1000 / 60)}:{str(track.length / 1000)[:2]}`) has been added to the queue',
-                        'uk': f'Трек під назвою **{track.title}** (`{int(track.length / 1000 / 60)}:{str(track.length / 1000)[:2]}`) додано до черги'
+                        'ru': f'Трек под названием **{track.title}** (`{time.strftime("%M:%S", time.gmtime(track.length / 1000))}`) был добавлен в очередь',
+                        'en': f'The track called **{track.title}** (`{time.strftime("%M:%S", time.gmtime(track.length / 1000))}`) has been added to the queue',
+                        'uk': f'Трек під назвою **{track.title}** (`{time.strftime("%M:%S", time.gmtime(track.length / 1000))}`) додано до черги'
                     }[lang_server]
                     
                     embed = disnake.Embed(
