@@ -119,7 +119,7 @@ class CogUtils(commands.Cog):
             }[lang], description=' | '.join(formats), 
             color=0x2b2d31
         )
-        embed.set_image(url=user.display_avatar)
+        embed.set_image(url=member.display_avatar)
         await inter.send(embed=embed)
 
 
